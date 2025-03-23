@@ -113,6 +113,18 @@ contract InstituteRegistration {
         require(institutes[_instituteAddress].exists, "Institute not found");
         return instituteCourses[_instituteAddress];
     }
+    function updateIpfsHash(bytes32 certHash, string memory newIpfsHash) public {
+    require(certificates[certHash].isValid, "Certificate does not exist or is revoked");
+    require(certificates[certHash].issuer == msg.sender, "Only the issuing institute can update the IPFS hash");
+    require(bytes(newIpfsHash).length > 0, "IPFS hash cannot be empty");
+
+    certificates[certHash].ipfsHash = newIpfsHash;  // Updating IPFS hash
+
+    emit IpfsHashUpdated(certHash, newIpfsHash);  // Emit event
+}
+    event IpfsHashUpdated(bytes32 indexed certHash, string newIpfsHash);
+
+
 
     function issueCertificate(
         string memory instituteName,
@@ -127,7 +139,7 @@ contract InstituteRegistration {
         string memory ipfsHash
     ) public onlyRegisteredInstitute {
         bytes32 certHash = keccak256(abi.encodePacked(
-            instituteName, department, firstName, lastName, certificantId, email, courseCompleted, completionDate, notes, ipfsHash
+            instituteName, department, firstName, lastName, certificantId, email, courseCompleted, completionDate, notes
         ));
 
         certificates[certHash] = Certificate(
