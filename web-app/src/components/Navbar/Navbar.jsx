@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom"; // Add useLocation
 import { ethers } from "ethers";
 import "./Navbar.css";
 
@@ -18,7 +18,7 @@ const Navbar = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
   const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS || "";
-  const adminAddress = import.meta.env.VITE_ADMIN_ADDRESS || ""; // Admin address from env
+  const location = useLocation();
 
   useEffect(() => {
     const checkWallet = async () => {
@@ -37,11 +37,6 @@ const Navbar = () => {
 
     checkWallet();
 
-    // If wallet was connected before, refresh once to ensure components recognize it
-    if (localStorage.getItem("walletConnected") === "true") {
-      localStorage.removeItem("walletConnected"); // Prevent infinite reloads
-      window.location.reload();
-    }
   }, []);
 
   const connectWallet = async () => {
@@ -51,11 +46,6 @@ const Navbar = () => {
         setAccount(accounts[0]);
         checkAdmin(accounts[0]);
 
-        // Store connection status in localStorage
-        localStorage.setItem("walletConnected", "true");
-
-        // Refresh the whole window
-        window.location.reload();
       } catch (error) {
         console.error("Error connecting to MetaMask:", error);
       }
@@ -78,13 +68,7 @@ const Navbar = () => {
     }
   };
 
-  // const handleRegisterClick = () => {
-  //   if (isAdmin) {
-  //     navigate("/register");
-  //   } else {
-  //     alert("Only the admin can register new institutes.");
-  //   }
-  // };
+ 
 
   return (
     <nav className="navbar">
@@ -93,7 +77,10 @@ const Navbar = () => {
         <button onClick={connectWallet} className="nav-button">
           {account ? "Connected" : "Connect"}
         </button>
-        {isAdmin && <button onClick={() => navigate("/register")}>Register Institute</button>}     
+        {location.pathname === "/" && account && (
+          <button onClick={() => navigate("/register")}>Register Institute</button>
+        )}
+        
       </div>
     </nav>
   );

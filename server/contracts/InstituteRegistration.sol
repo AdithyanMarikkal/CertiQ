@@ -147,9 +147,6 @@ contract InstituteRegistration {
             instituteName, department, firstName, lastName, certificantId, email, courseCompleted, completionDate, notes, ipfsHash
         ));
 
-        // 🔹 Prevent issuing duplicate certificates
-        require(certificates[certHash].issuer == address(0), "Certificate already exists");
-
         certificates[certHash] = Certificate(
             instituteName, department, firstName, lastName, certificantId, email, courseCompleted, completionDate, notes, ipfsHash, true, msg.sender
         );

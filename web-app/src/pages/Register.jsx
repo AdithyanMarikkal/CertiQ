@@ -20,7 +20,6 @@ const contractABI = [
   },
   {
     inputs: [
-      { internalType: "address", name: "_instituteAddress", type: "address" },
       { internalType: "string", name: "_name", type: "string" },
       { internalType: "string", name: "_acronym", type: "string" },
       { internalType: "string", name: "_website", type: "string" },
@@ -44,17 +43,29 @@ const Register = () => {
 
   useEffect(() => {
     const connectWallet = async () => {
-      if (window.ethereum) {
+      if (!window.ethereum) {
+        alert("MetaMask is required to register.");
+        return;
+      }
         try {
-          const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+          const accounts = await window.ethereum.request({ method: "eth_accounts" });
           if (accounts.length > 0) {
             setAccount(accounts[0]);
             checkIfRegistered(accounts[0]);
           }
+          window.ethereum.on("accountsChanged", (newAccounts) => {
+            if (newAccounts.length > 0) {
+              setAccount(newAccounts[0]);
+              checkIfRegistered(newAccounts[0]);
+            } else {
+              setAccount(null);
+              setIsRegistered(false);
+            }
+          });
         } catch (error) {
           console.error("Error connecting MetaMask:", error);
         }
-      }
+
     };
     connectWallet();
   }, []);
@@ -97,14 +108,34 @@ const Register = () => {
       const signer = await provider.getSigner();
       const contract = new ethers.Contract(contractAddress, contractABI, signer);
 
-      const tx = await contract.requestRegistration(account, institutionName, acronym, website);
+      //For debugging 
+      console.log("Requesting registration for:");
+      console.log("Institution Name:", institutionName);
+      console.log("Acronym:", acronym);
+      console.log("Website:", website);
+      console.log("Institute Address:", account);
+
+
+      //lines above for debugging
+
+
+
+      const tx = await contract.requestRegistration(institutionName, acronym, website);
+      console.log("Transaction sent:", tx.hash);
+      //above line for debugging
       await tx.wait();
 
       alert("Registration request sent successfully! Await admin approval.");
       navigate("/");
     } catch (error) {
       console.error("Request failed:", error);
-      alert("Failed to send request. Check console for details.");
+      if (error.code === -32002) {
+        alert("MetaMask is already processing a request. Please wait.");
+      } else if (error.code === "CALL_EXCEPTION") {
+        alert("Transaction reverted. Please check contract requirements.");
+      } else {
+        alert("Failed to send request. Check console for details.");
+      }
     } finally {
       setLoading(false);
     }

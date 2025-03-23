@@ -10,9 +10,14 @@ const contractABI = [
     type: "function",
   },
   {
-    inputs: [],
-    name: "getPendingRequests",
-    outputs: [{ internalType: "address[]", name: "", type: "address[]" }],
+    inputs: [{ internalType: "address", name: "_institute", type: "address" }],
+    name: "getPendingInstitute",
+    outputs: [
+      { internalType: "string", name: "", type: "string" },
+      { internalType: "string", name: "", type: "string" },
+      { internalType: "string", name: "", type: "string" },
+      { internalType: "bool", name: "", type: "bool" }
+    ],
     stateMutability: "view",
     type: "function",
   },
@@ -23,12 +28,32 @@ const contractABI = [
     stateMutability: "nonpayable",
     type: "function",
   },
+  {
+    anonymous: false,
+    inputs: [
+      { indexed: true, internalType: "address", name: "instituteAddress", type: "address" },
+      { indexed: false, internalType: "string", name: "name", type: "string" }
+    ],
+    name: "InstituteRequested",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      { indexed: true, internalType: "address", name: "instituteAddress", type: "address" },
+      { indexed: false, internalType: "string", name: "name", type: "string" },
+      { indexed: false, internalType: "uint256", name: "registrationTime", type: "uint256" }
+    ],
+    name: "InstituteRegistered",
+    type: "event",
+  }
 ];
 
 const Admin = () => {
   const [pendingInstitutes, setPendingInstitutes] = useState([]);
   const [account, setAccount] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [loading, setLoading] = useState(false);
   const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS || "";
 
   useEffect(() => {
@@ -67,19 +92,54 @@ const Admin = () => {
 
   const fetchPendingRequests = async () => {
     if (!contractAddress) return;
+    setLoading(true);
 
     try {
       const provider = new ethers.BrowserProvider(window.ethereum);
       const contract = new ethers.Contract(contractAddress, contractABI, provider);
-      const requests = await contract.getPendingRequests();
-      setPendingInstitutes(requests);
+      
+      // Get all InstituteRequested events
+      const requestFilter = contract.filters.InstituteRequested();
+      const requestEvents = await contract.queryFilter(requestFilter);
+      
+      // Get all InstituteRegistered events
+      const registeredFilter = contract.filters.InstituteRegistered();
+      const registeredEvents = await contract.queryFilter(registeredFilter);
+      
+      // Extract addresses from events
+      const requestedAddresses = requestEvents.map(event => event.args.instituteAddress);
+      const registeredAddresses = registeredEvents.map(event => event.args.instituteAddress);
+      
+      // Filter out addresses that have already been registered
+      const pendingAddresses = requestedAddresses.filter(
+        addr => !registeredAddresses.includes(addr)
+      );
+      
+      // For each pending address, check if it's still in the pendingRequests mapping
+      const confirmedPending = [];
+      for (const addr of pendingAddresses) {
+        const pendingInfo = await contract.getPendingInstitute(addr);
+        if (pendingInfo[3]) { // Check if exists flag is true
+          confirmedPending.push({
+            address: addr,
+            name: pendingInfo[0],
+            acronym: pendingInfo[1],
+            website: pendingInfo[2]
+          });
+        }
+      }
+      
+      setPendingInstitutes(confirmedPending);
     } catch (error) {
       console.error("Error fetching pending requests:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const approveInstitute = async (instituteAddress) => {
     if (!window.ethereum || !contractAddress) return;
+    setLoading(true);
 
     try {
       const provider = new ethers.BrowserProvider(window.ethereum);
@@ -94,8 +154,42 @@ const Admin = () => {
     } catch (error) {
       console.error("Approval failed:", error);
       alert("Failed to approve institute.");
+    } finally {
+      setLoading(false);
     }
   };
+
+  // Setup event listener for real-time updates
+  useEffect(() => {
+    if (!contractAddress || !window.ethereum) return;
+
+    const setupEventListeners = async () => {
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const contract = new ethers.Contract(contractAddress, contractABI, provider);
+      
+      // Listen for new registration requests
+      contract.on("InstituteRequested", (address, name) => {
+        console.log("New institute requested:", address, name);
+        fetchPendingRequests();
+      });
+      
+      // Listen for new approvals
+      contract.on("InstituteRegistered", (address, name, time) => {
+        console.log("Institute registered:", address, name);
+        fetchPendingRequests();
+      });
+    };
+    
+    setupEventListeners();
+    
+    // Cleanup event listeners on component unmount
+    return () => {
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const contract = new ethers.Contract(contractAddress, contractABI, provider);
+      contract.removeAllListeners("InstituteRequested");
+      contract.removeAllListeners("InstituteRegistered");
+    };
+  }, [contractAddress]);
 
   return (
     <div className="admin-container">
@@ -105,14 +199,35 @@ const Admin = () => {
       ) : (
         <>
           <h2>Pending Registration Requests</h2>
-          {pendingInstitutes.length === 0 ? (
-            <p>No pending requests.</p>
+          <button 
+            onClick={fetchPendingRequests} 
+            disabled={loading}
+            className="refresh-button"
+          >
+            {loading ? "Loading..." : "Refresh Requests"}
+          </button>
+          
+          {loading ? (
+            <p>Loading pending requests...</p>
+          ) : pendingInstitutes.length === 0 ? (
+            <p>No pending requests found.</p>
           ) : (
-            <ul>
+            <ul className="pending-list">
               {pendingInstitutes.map((institute) => (
-                <li key={institute}>
-                  {institute}
-                  <button onClick={() => approveInstitute(institute)}>Approve</button>
+                <li key={institute.address} className="pending-item">
+                  <div className="institute-details">
+                    <p><strong>Name:</strong> {institute.name}</p>
+                    <p><strong>Acronym:</strong> {institute.acronym}</p>
+                    <p><strong>Website:</strong> {institute.website}</p>
+                    <p><strong>Address:</strong> {institute.address}</p>
+                  </div>
+                  <button 
+                    onClick={() => approveInstitute(institute.address)} 
+                    disabled={loading}
+                    className="approve-button"
+                  >
+                    Approve
+                  </button>
                 </li>
               ))}
             </ul>
