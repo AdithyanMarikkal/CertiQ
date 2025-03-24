@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom"; // Add useLocation
 import { ethers } from "ethers";
 import "./Navbar.css";
 
@@ -11,14 +11,40 @@ const contractABI = [
     stateMutability: "view",
     type: "function",
   },
+  {
+    inputs: [{ internalType: "address", name: "_institute", type: "address" }],
+    name: "isRegistered",
+    outputs: [{ internalType: "bool", name: "", type: "bool" }],
+    stateMutability: "view",
+    type: "function",
+  }
 ];
 
 const Navbar = () => {
   const [account, setAccount] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [contract, setContract] = useState(null);
   const navigate = useNavigate();
   const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS || "";
-  const adminAddress = import.meta.env.VITE_ADMIN_ADDRESS || ""; // Admin address from env
+  const location = useLocation();
+  const [isRegistered, setIsRegistered] = useState(false);
+
+  useEffect(() => {
+    const initContract = async () => {
+      if (window.ethereum && contractAddress) {
+        try {
+          const provider = new ethers.BrowserProvider(window.ethereum);
+          const contractInstance = new ethers.Contract(contractAddress, contractABI, provider);
+          setContract(contractInstance);
+        } catch (error) {
+          console.error("Error initializing contract:", error);
+        }
+      }
+    };
+    
+    initContract();
+  }, [contractAddress]);
+
 
   useEffect(() => {
     const checkWallet = async () => {
@@ -28,6 +54,7 @@ const Navbar = () => {
           if (accounts.length > 0) {
             setAccount(accounts[0]);
             checkAdmin(accounts[0]);
+            checkIfRegistered(accounts[0]);
           }
         } catch (error) {
           console.error("Error checking MetaMask accounts:", error);
@@ -35,14 +62,12 @@ const Navbar = () => {
       }
     };
 
-    checkWallet();
-
-    // If wallet was connected before, refresh once to ensure components recognize it
-    if (localStorage.getItem("walletConnected") === "true") {
-      localStorage.removeItem("walletConnected"); // Prevent infinite reloads
-      window.location.reload();
+    if (contract) {
+      checkWallet();
     }
-  }, []);
+
+  }, [contract]);
+  
 
   const connectWallet = async () => {
     if (window.ethereum) {
@@ -51,11 +76,10 @@ const Navbar = () => {
         setAccount(accounts[0]);
         checkAdmin(accounts[0]);
 
-        // Store connection status in localStorage
-        localStorage.setItem("walletConnected", "true");
+        if (contract) {
+          checkIfRegistered(accounts[0]);
+        }
 
-        // Refresh the whole window
-        window.location.reload();
       } catch (error) {
         console.error("Error connecting to MetaMask:", error);
       }
@@ -65,26 +89,28 @@ const Navbar = () => {
   };
 
   const checkAdmin = async (walletAddress) => {
-    if (!contractAddress) return;
+    if (!contractAddress || !contract) return;
 
     try {
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const contract = new ethers.Contract(contractAddress, contractABI, provider);
       const owner = await contract.owner();
-
-      setIsAdmin(walletAddress.toLowerCase() === owner.toLowerCase());
+    setIsAdmin(walletAddress.toLowerCase() === owner.toLowerCase());
     } catch (error) {
       console.error("Error checking admin:", error);
     }
   };
 
-  // const handleRegisterClick = () => {
-  //   if (isAdmin) {
-  //     navigate("/register");
-  //   } else {
-  //     alert("Only the admin can register new institutes.");
-  //   }
-  // };
+  const checkIfRegistered = async (address) => {
+    if (!contract) return;
+    try {
+      const registered = await contract.isRegistered(address);
+      setIsRegistered(registered);
+    } catch (error) {
+      console.error("Error checking registration status:", error);
+      setIsRegistered(false);
+    }
+  };
+
+ 
 
   return (
     <nav className="navbar">
@@ -93,7 +119,10 @@ const Navbar = () => {
         <button onClick={connectWallet} className="nav-button">
           {account ? "Connected" : "Connect"}
         </button>
-        {isAdmin && <button onClick={() => navigate("/register")}>Register Institute</button>}     
+        {location.pathname === "/" && account && !isRegistered &&(
+          <button onClick={() => navigate("/register")}>Register Institute</button>
+        )}
+        
       </div>
     </nav>
   );

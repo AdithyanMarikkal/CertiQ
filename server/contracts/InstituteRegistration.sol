@@ -9,6 +9,14 @@ contract InstituteRegistration {
         string acronym;
         string website;
         uint256 registrationTime;
+        bool isRegistered;
+        bool exists;
+    }
+
+    struct PendingInstitute {
+        string name;
+        string acronym;
+        string website;
         bool exists;
     }
 
@@ -31,10 +39,12 @@ contract InstituteRegistration {
         address issuer;
     }
 
-    mapping(address => Institute) public institutes;
     mapping(address => Course[]) public instituteCourses;
     mapping(bytes32 => Certificate) public certificates;
+    mapping(address => Institute) public registeredInstitutes;
+    mapping(address => PendingInstitute) public pendingRequests;
 
+    event InstituteRequested(address indexed instituteAddress, string name);
     event InstituteRegistered(address indexed instituteAddress, string name, uint256 registrationTime);
     event CourseAdded(address indexed instituteAddress, string courseName);
     event CertificateIssued(
@@ -58,7 +68,7 @@ contract InstituteRegistration {
     }
 
     modifier onlyRegisteredInstitute() {
-        require(institutes[msg.sender].exists, "Only registered institutes can perform this action");
+        require(registeredInstitutes[msg.sender].exists, "Only registered institutes can perform this action");
         _;
     }
 
@@ -66,36 +76,31 @@ contract InstituteRegistration {
         owner = msg.sender;
     }
 
-    function registerInstitute(
-        address _instituteAddress,
-        string memory _name,
-        string memory _acronym,
-        string memory _website
-    ) public onlyOwner {
-        require(!institutes[_instituteAddress].exists, "Institute already registered");
-        require(bytes(_name).length > 0, "Institute name cannot be empty");
-        require(bytes(_acronym).length > 0, "Acronym cannot be empty");
-        require(bytes(_website).length > 0, "Website cannot be empty");
+    function requestRegistration(string memory _name, string memory _acronym, string memory _website) public {
+        require(!registeredInstitutes[msg.sender].isRegistered, "Already registered");
+        require(!pendingRequests[msg.sender].exists, "Request already pending");
 
-        institutes[_instituteAddress] = Institute({
-            name: _name,
-            acronym: _acronym,
-            website: _website,
-            registrationTime: block.timestamp,
-            exists: true
-        });
-
-        emit InstituteRegistered(_instituteAddress, _name, block.timestamp);
+        pendingRequests[msg.sender] = PendingInstitute(_name, _acronym, _website, true);
+        emit InstituteRequested(msg.sender, _name);
     }
 
-    function addCourse(string memory _courseName) public onlyRegisteredInstitute {
-        require(bytes(_courseName).length > 0, "Course name cannot be empty");
-        instituteCourses[msg.sender].push(Course({ courseName: _courseName }));
-        emit CourseAdded(msg.sender, _courseName);
+
+    function approveRegistration(address _institute) public onlyOwner {
+        require(pendingRequests[_institute].exists, "No pending request found");
+
+        PendingInstitute memory pending = pendingRequests[_institute];
+        registeredInstitutes[_institute] = Institute(pending.name, pending.acronym, pending.website,block.timestamp, true, true);
+        
+        delete pendingRequests[_institute];
+        emit InstituteRegistered(_institute, pending.name , block.timestamp);
     }
 
     function isRegistered(address _institute) public view returns (bool) {
-        return institutes[_institute].exists;
+        return registeredInstitutes[_institute].isRegistered;
+    }
+    function getPendingInstitute(address _institute) public view returns (string memory, string memory, string memory, bool) {
+        PendingInstitute memory pending = pendingRequests[_institute];
+        return (pending.name, pending.acronym, pending.website, pending.exists);
     }
 
     function getInstitute(address _instituteAddress) public view returns (
@@ -104,13 +109,25 @@ contract InstituteRegistration {
         string memory website,
         uint256 registrationTime
     ) {
-        require(institutes[_instituteAddress].exists, "Institute not found");
-        Institute memory inst = institutes[_instituteAddress];
+        require(registeredInstitutes[_instituteAddress].exists, "Institute not found"); // ✅ Fixed mapping reference
+        Institute memory inst = registeredInstitutes[_instituteAddress]; 
         return (inst.name, inst.acronym, inst.website, inst.registrationTime);
     }
 
+    function addCourse(string memory _courseName) public onlyRegisteredInstitute {
+    require(bytes(_courseName).length > 0, "Course name cannot be empty");
+    
+    Course[] storage courses = instituteCourses[msg.sender];
+    for (uint256 i = 0; i < courses.length; i++) {
+        require(keccak256(bytes(courses[i].courseName)) != keccak256(bytes(_courseName)), "Course already exists");
+    }
+
+    courses.push(Course({ courseName: _courseName }));
+    emit CourseAdded(msg.sender, _courseName);
+    }
+
     function getCourses(address _instituteAddress) public view returns (Course[] memory) {
-        require(institutes[_instituteAddress].exists, "Institute not found");
+        require(registeredInstitutes[_instituteAddress].exists, "Institute not found");
         return instituteCourses[_instituteAddress];
     }
     function updateIpfsHash(bytes32 certHash, string memory newIpfsHash) public {
