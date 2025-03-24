@@ -28,6 +28,15 @@ const contractABI = [
     stateMutability: "nonpayable",
     type: "function",
   },
+
+  {
+    inputs: [{ internalType: "address", name: "_institute", type: "address" }],
+    name: "rejectRegistration",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+
   {
     anonymous: false,
     inputs: [
@@ -46,6 +55,15 @@ const contractABI = [
     ],
     name: "InstituteRegistered",
     type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      { indexed: true, internalType: "address", name: "instituteAddress", type: "address" },
+      { indexed: false, internalType: "string", name: "name", type: "string" }
+    ],
+    name: "InstituteRejected",
+    type: "event",
   }
 ];
 
@@ -54,6 +72,7 @@ const Admin = () => {
   const [account, setAccount] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [actionInProgress, setActionInProgress] = useState(false);
   const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS || "";
 
   useEffect(() => {
@@ -159,6 +178,28 @@ const Admin = () => {
     }
   };
 
+  const rejectInstitute = async (instituteAddress) => {
+    if (!window.ethereum || !contractAddress || actionInProgress) return;
+    setActionInProgress(true);
+
+    try {
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const contract = new ethers.Contract(contractAddress, contractABI, signer);
+
+      const tx = await contract.rejectRegistration(instituteAddress);
+      await tx.wait();
+
+      alert("Institute rejected successfully!");
+      fetchPendingRequests(); // Refresh list
+    } catch (error) {
+      console.error("Rejection failed:", error);
+      alert("Failed to reject institute.");
+    } finally {
+      setActionInProgress(false);
+    }
+  };
+
   // Setup event listener for real-time updates
   useEffect(() => {
     if (!contractAddress || !window.ethereum) return;
@@ -178,6 +219,11 @@ const Admin = () => {
         console.log("Institute registered:", address, name);
         fetchPendingRequests();
       });
+
+      contract.on("InstituteRejected", (address, name) => {
+        console.log("Institute rejected:", address, name);
+        fetchPendingRequests();
+      });
     };
     
     setupEventListeners();
@@ -188,6 +234,7 @@ const Admin = () => {
       const contract = new ethers.Contract(contractAddress, contractABI, provider);
       contract.removeAllListeners("InstituteRequested");
       contract.removeAllListeners("InstituteRegistered");
+      contract.removeAllListeners("InstituteRejected");
     };
   }, [contractAddress]);
 
@@ -221,13 +268,24 @@ const Admin = () => {
                     <p><strong>Website:</strong> {institute.website}</p>
                     <p><strong>Address:</strong> {institute.address}</p>
                   </div>
+
+                  
+                  <div className="action-buttons">
                   <button 
                     onClick={() => approveInstitute(institute.address)} 
-                    disabled={loading}
+                    disabled={actionInProgress}
                     className="approve-button"
                   >
                     Approve
                   </button>
+                  <button 
+                      onClick={() => rejectInstitute(institute.address)} 
+                      disabled={actionInProgress}
+                      className="reject-button"
+                    >
+                      Reject
+                    </button>
+                    </div>
                 </li>
               ))}
             </ul>

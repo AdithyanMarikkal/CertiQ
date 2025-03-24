@@ -11,14 +11,40 @@ const contractABI = [
     stateMutability: "view",
     type: "function",
   },
+  {
+    inputs: [{ internalType: "address", name: "_institute", type: "address" }],
+    name: "isRegistered",
+    outputs: [{ internalType: "bool", name: "", type: "bool" }],
+    stateMutability: "view",
+    type: "function",
+  }
 ];
 
 const Navbar = () => {
   const [account, setAccount] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [contract, setContract] = useState(null);
   const navigate = useNavigate();
   const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS || "";
   const location = useLocation();
+  const [isRegistered, setIsRegistered] = useState(false);
+
+  useEffect(() => {
+    const initContract = async () => {
+      if (window.ethereum && contractAddress) {
+        try {
+          const provider = new ethers.BrowserProvider(window.ethereum);
+          const contractInstance = new ethers.Contract(contractAddress, contractABI, provider);
+          setContract(contractInstance);
+        } catch (error) {
+          console.error("Error initializing contract:", error);
+        }
+      }
+    };
+    
+    initContract();
+  }, [contractAddress]);
+
 
   useEffect(() => {
     const checkWallet = async () => {
@@ -28,6 +54,7 @@ const Navbar = () => {
           if (accounts.length > 0) {
             setAccount(accounts[0]);
             checkAdmin(accounts[0]);
+            checkIfRegistered(accounts[0]);
           }
         } catch (error) {
           console.error("Error checking MetaMask accounts:", error);
@@ -35,9 +62,12 @@ const Navbar = () => {
       }
     };
 
-    checkWallet();
+    if (contract) {
+      checkWallet();
+    }
 
-  }, []);
+  }, [contract]);
+  
 
   const connectWallet = async () => {
     if (window.ethereum) {
@@ -45,6 +75,10 @@ const Navbar = () => {
         const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
         setAccount(accounts[0]);
         checkAdmin(accounts[0]);
+
+        if (contract) {
+          checkIfRegistered(accounts[0]);
+        }
 
       } catch (error) {
         console.error("Error connecting to MetaMask:", error);
@@ -55,16 +89,24 @@ const Navbar = () => {
   };
 
   const checkAdmin = async (walletAddress) => {
-    if (!contractAddress) return;
+    if (!contractAddress || !contract) return;
 
     try {
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const contract = new ethers.Contract(contractAddress, contractABI, provider);
       const owner = await contract.owner();
-
-      setIsAdmin(walletAddress.toLowerCase() === owner.toLowerCase());
+    setIsAdmin(walletAddress.toLowerCase() === owner.toLowerCase());
     } catch (error) {
       console.error("Error checking admin:", error);
+    }
+  };
+
+  const checkIfRegistered = async (address) => {
+    if (!contract) return;
+    try {
+      const registered = await contract.isRegistered(address);
+      setIsRegistered(registered);
+    } catch (error) {
+      console.error("Error checking registration status:", error);
+      setIsRegistered(false);
     }
   };
 
@@ -77,7 +119,7 @@ const Navbar = () => {
         <button onClick={connectWallet} className="nav-button">
           {account ? "Connected" : "Connect"}
         </button>
-        {location.pathname === "/" && account && (
+        {location.pathname === "/" && account && !isRegistered &&(
           <button onClick={() => navigate("/register")}>Register Institute</button>
         )}
         
