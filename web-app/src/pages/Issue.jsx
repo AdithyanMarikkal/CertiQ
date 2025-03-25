@@ -245,10 +245,10 @@ const Issue = () => {
       const hash = receipt.logs[0].topics[1];
       setCertHash(hash);
       setTransactionComplete(true);
-      setStatus(Certificate issued successfully! Certificate Hash: ${hash});
+      setStatus(`Certificate issued successfully! Certificate Hash: ${hash}`);
     } catch (error) {
       console.error(error);
-      setStatus(Error: ${error.message});
+      setStatus(`Error: ${error.message}`);
     }
   };
 
@@ -275,14 +275,14 @@ const Issue = () => {
     if (!canvas) return;
 
     const link = document.createElement('a');
-    link.download = certificate-${formData.certificantId}-verification-qr.png;
+    link.download = `certificate-${formData.certificantId}-verification-qr.png`;
     link.href = canvas.toDataURL('image/png');
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
-  const verificationUrl = certHash ? ${verifyBaseUrl}?hash=${certHash} : '';
+  const verificationUrl = certHash ? `${verifyBaseUrl}?hash=${certHash}` : '';
 
   const sendEmail = async () => {
     setStatus('Sending email...');
@@ -290,19 +290,19 @@ const Issue = () => {
     const qrCodeImage = canvas ? canvas.toDataURL('image/png') : '';
     const emailData = {
       recipientEmail: formData.email,
-      studentName: ${formData.firstName} ${formData.lastName},
+      studentName: `${formData.firstName} ${formData.lastName}`,
       courseName: formData.courseCompleted,
       instituteName: formData.instituteName,
       department: formData.department,
       completionDate: formData.completionDate,
       certificateHash: certHash,
-      verificationUrl: ${verifyBaseUrl}?hash=${certHash},
+      verificationUrl: `${verifyBaseUrl}?hash=${certHash}`,
       qrCodeImage,
       additionalMessage: customMessage.trim() ? customMessage : null
     };
 
     try {
-      const response = await fetch(${import.meta.env.VITE_BACKEND_URL}/api/send-email, {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/send-email`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(emailData)
@@ -565,4 +565,4 @@ const Issue = () => {
   );
 };
 
-export default Issue;
+export default Issue;

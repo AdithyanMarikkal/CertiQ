@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom"; // Add useLocation
+import { useNavigate, useLocation } from "react-router-dom";
 import { ethers } from "ethers";
-import "./Navbar.css";
+import './Navbar.css';
 
 const contractABI = [
   {
@@ -28,6 +28,7 @@ const Navbar = () => {
   const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS || "";
   const location = useLocation();
   const [isRegistered, setIsRegistered] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
     const initContract = async () => {
@@ -44,7 +45,6 @@ const Navbar = () => {
     
     initContract();
   }, [contractAddress]);
-
 
   useEffect(() => {
     const checkWallet = async () => {
@@ -66,8 +66,13 @@ const Navbar = () => {
       checkWallet();
     }
 
+    // If wallet was connected before, refresh once to ensure components recognize it
+    if (localStorage.getItem("walletConnected") === "true") {
+      localStorage.removeItem("walletConnected"); // Prevent infinite reloads
+      window.location.reload();
+    }
+
   }, [contract]);
-  
 
   const connectWallet = async () => {
     if (window.ethereum) {
@@ -80,9 +85,16 @@ const Navbar = () => {
           checkIfRegistered(accounts[0]);
         }
 
+        // Store connection status in localStorage
+        localStorage.setItem("walletConnected", "true");
+
+        // Refresh the whole window
+        window.location.reload();
+
       } catch (error) {
         console.error("Error connecting to MetaMask:", error);
       }
+
     } else {
       alert("Please install MetaMask to use this feature.");
     }
@@ -93,7 +105,7 @@ const Navbar = () => {
 
     try {
       const owner = await contract.owner();
-    setIsAdmin(walletAddress.toLowerCase() === owner.toLowerCase());
+      setIsAdmin(walletAddress.toLowerCase() === owner.toLowerCase());
     } catch (error) {
       console.error("Error checking admin:", error);
     }
@@ -110,23 +122,53 @@ const Navbar = () => {
     }
   };
 
- 
+  const toggleTheme = () => {
+    setIsDarkMode(!isDarkMode);
+    document.body.classList.toggle('dark-mode');
+  };
 
   return (
-    <nav className="navbar">
-      <button onClick={() => navigate("/")}>CertiQ</button>
-      <div>
-        <button onClick={connectWallet} className="nav-button">
-          {account ? "Connected" : "Connect"}
-        </button>
-        {location.pathname === "/" && account && !isRegistered &&(
-          <button onClick={() => navigate("/register")}>Register Institute</button>
-        )}
-        
+    <header className={isDarkMode ? 'dark-mode' : ''}>
+      <div className="container header-container">
+        <a href="#" className="logo" onClick={() => navigate("/")}>
+          <div className="logo-icon">CQ</div>
+          CertiQ
+        </a>
+        <div className="nav-menu">
+          <ul className="nav-links">
+            <li><a href="#" className="nav-link">Home</a></li>
+            <li><a href="#" className="nav-link">Features</a></li>
+            <li><a href="#" className="nav-link">Use Cases</a></li>
+            <li><a href="#" className="nav-link">Pricing</a></li>
+            <li><a href="#" className="nav-link">About</a></li>
+          </ul>
+          <div className="toggle-container">
+            <button 
+              id="theme-toggle" 
+              className="theme-toggle" 
+              onClick={toggleTheme}
+            >
+              {isDarkMode ? '☀️' : '🌙'}
+            </button>
+            <button 
+              className="button btn-outline" 
+              onClick={connectWallet}
+            >
+              {account ? "Connected" : "Log In"}
+            </button>
+            {location.pathname === "/" && account && !isRegistered && (
+              <button 
+                className="button btn-primary" 
+                onClick={() => navigate("/register")}
+              >
+                Register Institute
+              </button>
+            )}
+          </div>
+        </div>
       </div>
-    </nav>
+    </header>
   );
 };
 
 export default Navbar;
-

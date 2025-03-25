@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import { ethers } from "ethers";
-import styles from "../style/App.module.css";
 import Navbar from "../components/Navbar/Navbar";
 import { CenteredBox } from '../components/CenteredBox/CenteredBox';
 import Issue from './Issue';
 import Register from './Register';
 import Verify from './Verify';
 import Admin from './Admin';
-import backgroundImage from '../assets/background.jpg'; // ✅ Import the background image
 
 const contractABI = [
   {
@@ -26,16 +24,7 @@ function App() {
 
   return (
     <Router>
-      <div 
-        style={{
-          backgroundImage: `url(${backgroundImage})`,  // ✅ Set background image
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          minHeight: "100vh", // Ensure it covers the full screen
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
+      <div>
         <Navbar />
         <CheckAdmin setIsAdmin={setIsAdmin} contractAddress={contractAddress} />
         <Routes>
