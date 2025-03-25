@@ -5,6 +5,7 @@ const cors = require("cors");
 const multer = require('multer');
 const axios = require('axios');
 const fs = require('fs');
+const emailRoutes = require('./routes/emailRoutes');
 
 
 
@@ -13,7 +14,7 @@ app.use(express.json());
 app.use(cors());
 const upload = multer({ dest: 'uploads/' });
 
-
+app.use('/api',emailRoutes)
 
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const ALCHEMY_URL = process.env.ALCHEMY_URL;
@@ -66,4 +67,4 @@ app.post('/upload', upload.single('image'), async (req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(Server running on port ${PORT}));
