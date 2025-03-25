@@ -2,186 +2,9 @@ import React, { useState } from 'react';
 import { ethers } from 'ethers';
 import { QRCodeCanvas } from 'qrcode.react';import contractABI from '../../../server/artifacts/contracts/InstituteRegistration.sol/InstituteRegistration.json';
 import { useRef } from 'react';
+import "./issue.css"
 const verifyBaseUrl = import.meta.env.VITE_VERIFY_URL || 'http://localhost:5173/verify';
 const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
-const styles = {
-  container: {
-    minHeight: '100vh',
-    backgroundImage: 'url("../assets/back.jpeg")', // Ensure correct path
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
-    backgroundRepeat: 'no-repeat',
-    backgroundAttachment: 'fixed', // Keeps the background fixed while scrolling
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '24px'
-    
-  },
-  formWrapper: {
-    maxWidth: '700px',
-    width: '90%',
-    backgroundColor: 'rgba(255, 255, 255, 0.5)', // More transparency
-    borderRadius: '8px',
-    boxShadow: '0 4px 10px rgba(0, 0, 0, 0.2)', // Deeper shadow for contrast
-    padding: '16px',
-    backdropFilter: 'blur(12px)', // Stronger blur effect
-    maxHeight: '85vh', // Limit form height
-    overflowY: 'auto'
-  },
-  header: {
-    padding: '24px',
-    borderBottom: '1px solid #e5e5e5'
-  },
-  title: {
-    fontSize: '24px',
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: '8px'
-  },
-  subtitle: {
-    color: '#666',
-    fontSize: '14px'
-  },
-  form: {
-    padding: '24px'
-  },
-  section: {
-    marginBottom: '32px'
-  },
-  sectionTitle: {
-    fontSize: '18px',
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: '16px',
-    paddingBottom: '8px',
-    borderBottom: '1px solid #e5e5e5'
-  },
-  formGroup: {
-    marginBottom: '16px'
-  },
-  label: {
-    display: 'block',
-    marginBottom: '8px',
-    fontSize: '14px',
-    fontWeight: '500',
-    color: '#333'
-  },
-  input: {
-    width: '100%',
-    padding: '8px 12px',
-    border: '1px solid #ddd',
-    borderRadius: '4px',
-    fontSize: '14px',
-    outline: 'none',
-    transition: 'border-color 0.2s',
-  },
-  nameGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-    gap: '16px',
-    marginBottom: '16px'
-  },
-  textarea: {
-    width: '100%',
-    padding: '8px 12px',
-    border: '1px solid #ddd',
-    borderRadius: '4px',
-    fontSize: '14px',
-    minHeight: '100px',
-    resize: 'vertical'
-  },
-  buttonGroup: {
-    display: 'flex',
-    justifyContent: 'flex-end',
-    gap: '12px',
-    marginTop: '24px'
-  },
-  button: {
-    padding: '8px 16px',
-    borderRadius: '4px',
-    fontSize: '14px',
-    fontWeight: '500',
-    cursor: 'pointer',
-    transition: 'all 0.2s'
-  },
-  cancelButton: {
-    backgroundColor: 'white',
-    border: '1px solid #ddd',
-    color: '#333'
-  },
-  submitButton: {
-    backgroundColor: '#2563eb',
-    border: 'none',
-    color: 'white'
-  },
-  qrCodeContainer: {
-    marginTop: '24px',
-    padding: '16px',
-    border: '1px solid #e5e5e5', 
-    borderRadius: '8px',
-    backgroundColor: 'white',
-    textAlign: 'center',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: '16px'
-  },
-  qrCodeTitle: {
-    fontSize: '16px',
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: '8px'
-  },
-  downloadButton: {
-    backgroundColor: '#10b981',
-    border: 'none',
-    color: 'white',
-    padding: '8px 16px',
-    borderRadius: '4px',
-    fontSize: '14px',
-    fontWeight: '500',
-    cursor: 'pointer',
-    transition: 'all 0.2s',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px'
-  },
-  // New email section styles
-  emailSection: {
-    marginTop: '24px',
-    padding: '16px',
-    border: '1px solid #e5e5e5',
-    borderRadius: '8px',
-    backgroundColor: 'white'
-  },
-  emailSectionTitle: {
-    fontSize: '16px',
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: '16px'
-  },
-  sendEmailButton: {
-    backgroundColor: '#10b981',
-    border: 'none',
-    color: 'white',
-    padding: '8px 16px',
-    borderRadius: '4px',
-    fontSize: '14px',
-    fontWeight: '500',
-    cursor: 'pointer',
-    transition: 'all 0.2s'
-  },
-  successMessage: {
-    marginTop: '16px',
-    padding: '12px',
-    backgroundColor: '#ecfdf5',
-    borderRadius: '4px',
-    color: '#065f46',
-    fontWeight: '500'
-  }
-};
-
 const Issue = () => {
   const [formData, setFormData] = useState({
     instituteName: '',
@@ -322,27 +145,31 @@ const Issue = () => {
   
 
   return (
-    <div style={styles.container}>
-      <div style={styles.formWrapper}>
-        <div style={styles.header}>
-          <h1 style={styles.title}>Certificate Issue Request</h1>
-          <p style={styles.subtitle}>Please fill in the details to request a new certificate</p>
-        </div>
-
-        <form onSubmit={handleSubmit} style={styles.form}>
+    <>
+      <div className="certificate-issue-container">
+        <form onSubmit={handleSubmit} className="certificate-form">
           {/* Institute Details Section */}
-          <div style={styles.section}>
-            <h2 style={styles.sectionTitle}>Institute Details</h2>
-            <input type="text" name="instituteName" value={formData.instituteName} onChange={handleChange} placeholder="Institute Name" required />
+          <div className="form-section">
+            <h2 className="form-section-title">Institute Details</h2>
             
-            
-
-            <div style={styles.formGroup}>
-              <label style={styles.label} htmlFor="department">
-                Department
-              </label>
+            <div className="form-group">
+              <label className="form-label" htmlFor="instituteName">Institute Name</label>
               <input
-                style={styles.input}
+                className="form-input"
+                type="text"
+                id="instituteName"
+                name="instituteName"
+                value={formData.instituteName}
+                onChange={handleChange}
+                placeholder="Enter institute name"
+                required
+              />
+            </div>
+  
+            <div className="form-group">
+              <label className="form-label" htmlFor="department">Department</label>
+              <input
+                className="form-input"
                 type="text"
                 id="department"
                 name="department"
@@ -352,99 +179,87 @@ const Issue = () => {
               />
             </div>
           </div>
-
+  
           {/* Certificant Details Section */}
-          <div style={styles.section}>
-            <h2 style={styles.sectionTitle}>Certificant Details</h2>
+          <div className="form-section">
+            <h2 className="form-section-title">Certificant Details</h2>
             
-            <div style={styles.nameGrid}>
-              <div style={styles.formGroup}>
-                <label style={styles.label} htmlFor="firstName">
-                  First Name *
-                </label>
+            <div className="name-grid">
+              <div className="form-group">
+                <label className="form-label" htmlFor="firstName">First Name *</label>
                 <input
-                  style={styles.input}
+                  className="form-input"
                   type="text"
                   id="firstName"
                   name="firstName"
                   value={formData.firstName}
                   onChange={handleChange}
-                  required
                   placeholder="Enter first name"
+                  required
                 />
               </div>
-
-              <div style={styles.formGroup}>
-                <label style={styles.label} htmlFor="lastName">
-                  Last Name *
-                </label>
+  
+              <div className="form-group">
+                <label className="form-label" htmlFor="lastName">Last Name *</label>
                 <input
-                  style={styles.input}
+                  className="form-input"
                   type="text"
                   id="lastName"
                   name="lastName"
                   value={formData.lastName}
                   onChange={handleChange}
-                  required
                   placeholder="Enter last name"
+                  required
                 />
               </div>
             </div>
-
-            <div style={styles.formGroup}>
-              <label style={styles.label} htmlFor="certificantId">
-                Certificant ID *
-              </label>
+  
+            <div className="form-group">
+              <label className="form-label" htmlFor="certificantId">Certificant ID *</label>
               <input
-                style={styles.input}
+                className="form-input"
                 type="text"
                 id="certificantId"
                 name="certificantId"
                 value={formData.certificantId}
                 onChange={handleChange}
-                required
                 placeholder="Enter certificant ID"
+                required
               />
             </div>
-
-            <div style={styles.formGroup}>
-              <label style={styles.label} htmlFor="email">
-                Email Address *
-              </label>
+  
+            <div className="form-group">
+              <label className="form-label" htmlFor="email">Email Address *</label>
               <input
-                style={styles.input}
+                className="form-input"
                 type="email"
                 id="email"
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                required
                 placeholder="Enter email address"
+                required
               />
             </div>
-
-            <div style={styles.formGroup}>
-              <label style={styles.label} htmlFor="courseCompleted">
-                Course Completed *
-              </label>
+  
+            <div className="form-group">
+              <label className="form-label" htmlFor="courseCompleted">Course Completed *</label>
               <input
-                style={styles.input}
+                className="form-input"
                 type="text"
                 id="courseCompleted"
                 name="courseCompleted"
                 value={formData.courseCompleted}
                 onChange={handleChange}
-                required
                 placeholder="Enter course name"
+                required
               />
             </div>
-
-            <div style={styles.formGroup}>
-              <label style={styles.label} htmlFor="completionDate">
-                Completion Date *
-              </label>
+  
+            <div className="form-group">
+              <label className="form-label" htmlFor="completionDate">Completion Date *</label>
               <input
-                style={styles.input}
+                className="form-input"
                 type="date"
                 id="completionDate"
                 name="completionDate"
@@ -454,26 +269,27 @@ const Issue = () => {
               />
             </div>
           </div>
-
+  
           {/* Additional Notes */}
-          <div style={styles.formGroup}>
-            <label style={styles.label} htmlFor="notes">
-              Additional Notes
-            </label>
-            <textarea
-              style={styles.textarea}
-              id="notes"
-              name="notes"
-              value={formData.notes}
-              onChange={handleChange}
-              placeholder="Any additional information..."
-            />
+          <div className="form-section">
+            <div className="form-group">
+              <label className="form-label" htmlFor="notes">Additional Notes</label>
+              <textarea
+                className="form-input"
+                id="notes"
+                name="notes"
+                value={formData.notes}
+                onChange={handleChange}
+                placeholder="Any additional information..."
+                rows="4"
+              />
+            </div>
           </div>
-
-          {/* QR Code section - only shown after successful transaction */}
+  
+          {/* QR Code Section */}
           {transactionComplete && certHash && (
-            <div style={styles.qrCodeContainer}>
-              <h3 style={styles.qrCodeTitle}>Certificate Verification QR Code</h3>
+            <div className="qr-code-section" ref={qrCodeRef}>
+              <h3 className="qr-code-title">Certificate Verification QR Code</h3>
               <p>Scan this QR code to verify the certificate</p>
               
               <QRCodeCanvas
@@ -481,88 +297,88 @@ const Issue = () => {
                 value={verificationUrl}
                 size={200}
                 level="H"
-                ref={qrCodeRef}
               />
               
               <button
                 type="button"
                 onClick={downloadQRCode}
-                style={styles.downloadButton}
+                className="btn-download-qr"
               >
                 Download QR Code
               </button>
               
-              <p style={{fontSize: '12px', color: '#666'}}>
+              <p style={{fontSize: '0.75rem', color: 'var(--light-text-secondary)'}}>
                 Certificate Hash: {certHash}
               </p>
             </div>
           )}
-
-          {/* Status message */}
+  
+          {/* Status Message */}
           {status && (
-            <div style={{marginTop: '16px', padding: '12px', backgroundColor: '#f8f9fa', borderRadius: '4px'}}>
-              <p style={{margin: 0}}>{status}</p>
+            <div className="status-message">
+              {status}
             </div>
           )}
-
+  
           {/* Buttons */}
-          <div style={styles.buttonGroup}>
+          <div className="form-buttons">
             <button
               type="button"
               onClick={handleCancel}
-              style={{...styles.button, ...styles.cancelButton}}
+              className="btn-cancel"
             >
               Cancel
             </button>
             <button
               type="submit"
-              style={{...styles.button, ...styles.submitButton}}
+              className="btn-submit"
             >
-              Issue certificate
+              Issue Certificate
             </button>
           </div>
-          {/* {status && <p>{status}</p>} */}
-        </form>
-        <div>
-          {/* Email sending section */}
+  
+          {/* Email Sending Section */}
           {transactionComplete && !emailSent && (
-            <div style={styles.emailSection}>
-              <h3 style={styles.emailSectionTitle}>
-                Send Certificate to Recipient
-              </h3>
+            <div className="form-section">
+              <h3 className="form-section-title">Send Certificate to Recipient</h3>
               
-              <div style={styles.formGroup}>
-                <label style={styles.label} htmlFor="customMessage">
-                  Custom Message (Optional)
-                </label>
+              <div className="form-group">
+                <label className="form-label" htmlFor="customMessage">Custom Message (Optional)</label>
                 <textarea
-                  style={styles.textarea}
+                  className="form-input"
                   id="customMessage"
                   placeholder="Add a message to include in the email..."
                   value={customMessage}
                   onChange={(e) => setCustomMessage(e.target.value)}
+                  rows="4"
                 />
               </div>
               
-              <button
-                type="button"
-                onClick={sendEmail}
-                style={styles.sendEmailButton}
-              >
-                Send Email to Recipient
-              </button>
+              <div className="form-buttons">
+                <button
+                  type="button"
+                  onClick={sendEmail}
+                  className="btn-submit"
+                >
+                  Send Email to Recipient
+                </button>
+              </div>
             </div>
           )}
-
+  
+          {/* Email Sent Confirmation */}
           {emailSent && (
-            <div style={styles.successMessage}>
-              <p style={{margin: 0}}>Email sent successfully to {formData.email}</p>
+            <div className="status-message">
+              Email sent successfully to {formData.email}
             </div>
           )}
-        </div>
+        </form>
       </div>
-    </div>
-  );
+      <div className="decoration decoration-1"></div>
+      <div className="decoration decoration-2"></div>
+      <div className="decoration decoration"></div>
+      </>
+    );
 };
 
 export default Issue;

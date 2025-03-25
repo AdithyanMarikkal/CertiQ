@@ -1,0 +1,224 @@
+:root {
+    /* Light Mode Variables */
+    --light-bg: #f8f9fa;
+    --light-card-bg: #ffffff;
+    --light-text: #212529;
+    --light-text-secondary: #6c757d;
+    --light-border: #e9ecef;
+    --light-primary: #6366f1;
+    --light-primary-hover: #4f46e5;
+    --light-secondary: #10b981;
+    --light-shadow: rgba(0, 0, 0, 0.1);
+    
+    /* Dark Mode Variables */
+    --dark-bg: #111827;
+    --dark-card-bg: #1f2937;
+    --dark-text: #f3f4f6;
+    --dark-text-secondary: #9ca3af;
+    --dark-border: #374151;
+    --dark-primary: #818cf8;
+    --dark-primary-hover: #a5b4fc;
+    --dark-secondary: #34d399;
+    --dark-shadow: rgba(0, 0, 0, 0.3);
+  }
+  
+  /* Certificate Issue Form Styles */
+  .certificate-issue-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+    background-color: var(--light-card-bg);
+    border-radius: 1rem;
+    box-shadow: 0 10px 25px var(--light-shadow);
+  }
+  
+  .dark-mode .certificate-issue-container {
+    background-color: var(--dark-card-bg);
+    box-shadow: 0 10px 25px var(--dark-shadow);
+  }
+  
+  .certificate-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .form-section {
+    background-color: var(--light-bg);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    border: 1px solid var(--light-border);
+  }
+  
+  .dark-mode .form-section {
+    background-color: var(--dark-bg);
+    border-color: var(--dark-border);
+  }
+  
+  .form-section-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: var(--light-primary);
+  }
+  
+  .dark-mode .form-section-title {
+    color: var(--dark-primary);
+  }
+  
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .form-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--light-text-secondary);
+  }
+  
+  .dark-mode .form-label {
+    color: var(--dark-text-secondary);
+  }
+  
+  .form-input {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--light-border);
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    background-color: white;
+    color: var(--light-text);
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+  
+  .dark-mode .form-input {
+    background-color: var(--dark-card-bg);
+    border-color: var(--dark-border);
+    color: var(--dark-text);
+  }
+  
+  .form-input:focus {
+    outline: none;
+    border-color: var(--light-primary);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  }
+  
+  .dark-mode .form-input:focus {
+    border-color: var(--dark-primary);
+    box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.1);
+  }
+  
+  .name-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  
+  .form-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1rem;
+  }
+  
+  .btn-cancel, .btn-submit {
+    padding: 0.625rem 1.25rem;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.3s;
+  }
+  
+  .btn-cancel {
+    background-color: transparent;
+    color: var(--light-text-secondary);
+    border: 1px solid var(--light-border);
+  }
+  
+  .dark-mode .btn-cancel {
+    color: var(--dark-text-secondary);
+    border-color: var(--dark-border);
+  }
+  
+  .btn-submit {
+    background-color: var(--light-primary);
+    color: white;
+    border: none;
+  }
+  
+  .dark-mode .btn-submit {
+    background-color: var(--dark-primary);
+  }
+  
+  .btn-cancel:hover {
+    background-color: var(--light-bg);
+    color: var(--light-primary);
+  }
+  
+  .dark-mode .btn-cancel:hover {
+    background-color: var(--dark-bg);
+    color: var(--dark-primary);
+  }
+  
+  .btn-submit:hover {
+    background-color: var(--light-primary-hover);
+  }
+  
+  .dark-mode .btn-submit:hover {
+    background-color: var(--dark-primary-hover);
+  }
+  
+  .qr-code-section {
+    background-color: var(--light-bg);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    border: 1px solid var(--light-border);
+  }
+  
+  .dark-mode .qr-code-section {
+    background-color: var(--dark-bg);
+    border-color: var(--dark-border);
+  }
+  
+  .qr-code-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--light-primary);
+  }
+  
+  .dark-mode .qr-code-title {
+    color: var(--dark-primary);
+  }
+  
+  .btn-download-qr {
+    background-color: var(--light-secondary);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+  }
+  
+  .dark-mode .btn-download-qr {
+    background-color: var(--dark-secondary);
+  }
+  
+  .status-message {
+    background-color: var(--light-bg);
+    border: 1px solid var(--light-border);
+    color: var(--light-text-secondary);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    text-align: center;
+  }
+  
+  .dark-mode .status-message {
+    background-color: var(--dark-bg);
+    border-color: var(--dark-border);
+    color: var(--dark-text-secondary);
+  }

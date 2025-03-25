@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ethers } from "ethers";
-import "../style/register.css"; 
+import "../pages/register.css"; 
 
 const contractABI = [
   {
@@ -142,55 +142,65 @@ const Register = () => {
   };
 
   return (
-    <div className="registration-container">
-      <div className="registration-card">
-        <h1 className="registration-title">Request Institute Registration</h1>
-        
-        <div className="form-group">
-          <label htmlFor="institutionName">Institution Name</label>
-          <input
-            id="institutionName"
-            type="text"
-            placeholder="Enter Institution Name"
-            value={institutionName}
-            onChange={(e) => setInstitutionName(e.target.value)}
-            disabled={loading || isRegistered}
-          />
-        </div>
-        
-        <div className="form-group">
-          <label htmlFor="acronym">Acronym</label>
-          <input
-            id="acronym"
-            type="text"
-            placeholder="Enter Acronym"
-            value={acronym}
-            onChange={(e) => setAcronym(e.target.value)}
-            disabled={loading || isRegistered}
-          />
-        </div>
-        
-        <div className="form-group">
-          <label htmlFor="website">Website URL</label>
-          <input
-            id="website"
-            type="text"
-            placeholder="Enter Website URL"
-            value={website}
-            onChange={(e) => setWebsite(e.target.value)}
-            disabled={loading || isRegistered}
-          />
-        </div>
+    <>
+    <div className="register-container">
+    <div className="decoration decoration-1"></div>
+    <div className="decoration decoration-2"></div>
+      <div className="register-content">
+        <div className="register-card">
+          <h1 className="register-title">Request Institute Registration</h1>
+          
+          
+          <div className="form-group">
+            <label htmlFor="institutionName">Institution Name</label>
+            <input
+              id="institutionName"
+              type="text"
+              placeholder="Enter Institution Name"
+              value={institutionName}
+              onChange={(e) => setInstitutionName(e.target.value)}
+              disabled={loading || isRegistered}
+              className="register-input"
+            />
+          </div>
+    
+          <div className="form-group">
+            <label htmlFor="acronym">Acronym</label>
+            <input
+              id="acronym"
+              type="text"
+              placeholder="Enter Acronym"
+              value={acronym}
+              onChange={(e) => setAcronym(e.target.value)}
+              disabled={loading || isRegistered}
+              className="register-input"
+            />
+          </div>
+          
+          <div className="form-group">
+            <label htmlFor="website">Website URL</label>
+            <input
+              id="website"
+              type="text"
+              placeholder="Enter Website URL"
+              value={website}
+              onChange={(e) => setWebsite(e.target.value)}
+              disabled={loading || isRegistered}
+              className="register-input"
+            />
+          </div>
 
-        <button 
-          className="registration-button"
-          onClick={requestRegistration} 
-          disabled={loading || !account || isRegistered}
-        >
-          {loading ? "Requesting..." : isRegistered ? "Already Registered" : "Request Registration"}
-        </button>
+          <button 
+            className="register-button"
+            onClick={requestRegistration} 
+            disabled={loading || !account || isRegistered}
+          >
+            {loading ? "Requesting..." : isRegistered ? "Already Registered" : "Request Registration"}
+          </button>
+        </div>
       </div>
     </div>
+  </>
   );
 };
 
