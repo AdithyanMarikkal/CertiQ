@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import InstituteRegistration from '../../../server/artifacts/contracts/InstituteRegistration.sol/InstituteRegistration.json';
 import { useSearchParams } from "react-router-dom";
-import axios from 'axios'; // Make sure to install axios if not already installed
+import axios from 'axios'; 
 
 const styles = {
   container: {
@@ -90,14 +90,14 @@ const styles = {
     marginTop: '16px',
     width: '100%'
   },
-  updateButton: {
+  actionButton: {
     padding: '8px 16px',
     borderRadius: '4px',
     fontSize: '14px',
     fontWeight: '500',
     cursor: 'pointer',
     transition: 'all 0.2s',
-    backgroundColor: '#8B5CF6', // Purple color for update button
+    backgroundColor: '#8B5CF6',
     border: 'none',
     color: 'white',
     marginTop: '16px',
@@ -111,19 +111,6 @@ const styles = {
     cursor: 'pointer',
     transition: 'all 0.2s',
     backgroundColor: '#047857',
-    border: 'none',
-    color: 'white',
-    marginTop: '16px',
-    width: '100%'
-  },
-  uploadButton: {
-    padding: '8px 16px',
-    borderRadius: '4px',
-    fontSize: '14px',
-    fontWeight: '500',
-    cursor: 'pointer',
-    transition: 'all 0.2s',
-    backgroundColor: '#6366F1',
     border: 'none',
     color: 'white',
     marginTop: '16px',
@@ -164,25 +151,19 @@ const styles = {
     margin: '24px 0',
     borderTop: '1px solid #ddd'
   },
-  uploadSection: {
-    padding: '0 24px 24px 24px',
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
-    borderRadius: '4px',
-    marginTop: '16px'
-  },
-  updateSection: {
+  managementSection: {
     padding: '16px 24px',
     backgroundColor: 'rgba(255, 255, 255, 0.7)',
     borderRadius: '4px',
     marginTop: '16px',
     border: '1px solid #d1d5db'
   },
-  uploadTitle: {
+  sectionTitle: {
     fontSize: '18px',
     fontWeight: 'bold',
     marginBottom: '12px'
   },
-  uploadDescription: {
+  sectionDescription: {
     fontSize: '14px',
     color: '#666',
     marginBottom: '16px'
@@ -299,6 +280,25 @@ const styles = {
     cursor: 'pointer',
     marginLeft: '8px',
     fontSize: '14px'
+  },
+  tabs: {
+    display: 'flex',
+    borderBottom: '1px solid #ddd',
+    margin: '0 24px 16px 24px'
+  },
+  tab: {
+    padding: '8px 16px',
+    cursor: 'pointer',
+    fontSize: '14px',
+    backgroundColor: 'transparent',
+    border: 'none',
+    borderBottom: '2px solid transparent',
+    transition: 'all 0.2s'
+  },
+  activeTab: {
+    borderBottom: '2px solid #2563eb',
+    color: '#2563eb',
+    fontWeight: '500'
   }
 };
 
@@ -317,17 +317,14 @@ const VerifyCertificate = () => {
   const [connectedAccount, setConnectedAccount] = useState('');
   const [isIssuer, setIsIssuer] = useState(false);
   
-  // IPFS upload related states
+  // Combined states for management section
+  const [activeTab, setActiveTab] = useState('certificate'); // 'certificate' or 'manage'
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const [ipfsHash, setIpfsHash] = useState('');
-  const [showUploadSection, setShowUploadSection] = useState(false);
-  
-  // New state for updating IPFS hash
   const [newIpfsHash, setNewIpfsHash] = useState('');
-  const [isUpdatingIpfs, setIsUpdatingIpfs] = useState(false);
-  const [showUpdateSection, setShowUpdateSection] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
     // Check if wallet is already connected
@@ -422,7 +419,7 @@ const VerifyCertificate = () => {
     }
     catch(error){
       console.error("Error creating provider:", error);
-    // Fallback to public RPC if your Alchemy URL fails
+      // Fallback to public RPC if your Alchemy URL fails
       return new ethers.JsonRpcProvider("https://rpc-amoy.polygon.technology")
     }
   };
@@ -443,10 +440,6 @@ const VerifyCertificate = () => {
       const provider = getProvider();
       const contract = new ethers.Contract(contractAddress, contractABI, provider);
 
-      //add network verification
-      const network = await provider.getNetwork();
-      console.log("Connected to network:", network);
-
       // Using the verifyCertificate function from your contract
       const certificateData = await contract.verifyCertificate(certHash);
       
@@ -454,7 +447,6 @@ const VerifyCertificate = () => {
       if (!certificateData || !certificateData[1]) {
         throw new Error('Certificate not found');
       }
-    // Add network verification
 
       // Format the certificate data based on the return values from verifyCertificate
       const formattedCertificate = {
@@ -496,7 +488,11 @@ const VerifyCertificate = () => {
       return;
     }
     
-    setIsLoading(true);
+    if (!confirm("Are you sure you want to revoke this certificate? This action cannot be undone.")) {
+      return;
+    }
+    
+    setIsProcessing(true);
     setError('');
     setSuccess('');
     
@@ -508,22 +504,13 @@ const VerifyCertificate = () => {
       const tx = await contract.revokeCertificate(certHash);
       await tx.wait();
       
-      setSuccess(`Certificate with hash ${certHash} has been successfully revoked.`);
+      setSuccess(Certificate has been successfully revoked.);
       
       // Refresh certificate data to show the updated status
       const updatedCertificateData = await contract.verifyCertificate(certHash);
       const updatedCertificate = {
-        isValid: updatedCertificateData[0],
-        instituteName: updatedCertificateData[1],
-        department: updatedCertificateData[2],
-        firstName: updatedCertificateData[3],
-        lastName: updatedCertificateData[4],
-        certificantId: updatedCertificateData[5],
-        email: updatedCertificateData[6],
-        courseCompleted: updatedCertificateData[7],
-        completionDate: new Date(Number(updatedCertificateData[8]) * 1000).toLocaleDateString(),
-        notes: updatedCertificateData[9],
-        ipfsHash: updatedCertificateData[10]
+        ...certificate,
+        isValid: updatedCertificateData[0]
       };
       
       setCertificate(updatedCertificate);
@@ -531,55 +518,7 @@ const VerifyCertificate = () => {
       console.error("Error revoking certificate:", error);
       setError("Failed to revoke certificate. Please try again.");
     } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // New function to update IPFS hash
-  const handleUpdateIpfsHash = async () => {
-    if (!window.ethereum) {
-      alert("Please connect to MetaMask");
-      return;
-    }
-    
-    if (!isIssuer) {
-      alert("Only the certificate issuer can update the IPFS hash");
-      return;
-    }
-    
-    if (!newIpfsHash) {
-      setError("Please enter a new IPFS hash");
-      return;
-    }
-    
-    setIsUpdatingIpfs(true);
-    setError('');
-    setSuccess('');
-    
-    try {
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
-      const contract = new ethers.Contract(contractAddress, contractABI, signer);
-      
-      const tx = await contract.updateIpfsHash(certHash, newIpfsHash);
-      await tx.wait();
-      
-      setSuccess(`IPFS hash for certificate ${certHash} has been successfully updated.`);
-      
-      // Refresh certificate data to show the updated IPFS hash
-      const updatedCertificateData = await contract.verifyCertificate(certHash);
-      const updatedCertificate = {
-        ...certificate,
-        ipfsHash: updatedCertificateData[10]
-      };
-      
-      setCertificate(updatedCertificate);
-      setNewIpfsHash(''); // Clear the input field
-    } catch (error) {
-      console.error("Error updating IPFS hash:", error);
-      setError(error.message || "Failed to update IPFS hash. Please try again.");
-    } finally {
-      setIsUpdatingIpfs(false);
+      setIsProcessing(false);
     }
   };
 
@@ -593,66 +532,102 @@ const VerifyCertificate = () => {
 
   const clearSelectedFile = () => {
     setSelectedFile(null);
+    setIpfsHash('');
   };
 
-  const handleFileUpload = async () => {
-    if (!selectedFile) {
-      setError('Please select a file to upload');
+  // Unified function for certificate management
+  const handleCertificateManagement = async (action) => {
+    if (!window.ethereum) {
+      alert("Please connect to MetaMask");
       return;
     }
-
-    setIsUploading(true);
-    setUploadProgress(0);
+    
+    if (!isIssuer) {
+      alert("Only the certificate issuer can manage this certificate");
+      return;
+    }
+    
+    setIsProcessing(true);
     setError('');
     setSuccess('');
-    setIpfsHash('');
-
-    const formData = new FormData();
-    formData.append('image', selectedFile);
-
+    
     try {
-      // Simulate progress for better UX
-      const progressInterval = setInterval(() => {
-        setUploadProgress(prev => {
-          if (prev >= 90) {
-            clearInterval(progressInterval);
-            return prev;
-          }
-          return prev + 10;
-        });
-      }, 500);
-
-      // Make the upload request to your server
-      const response = await axios.post(`${SERVER_URL}/upload`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
-
-      clearInterval(progressInterval);
-      setUploadProgress(100);
-
-      if (response.data && response.data.hash) {
-        setIpfsHash(response.data.hash);
-        setSuccess('File successfully uploaded to IPFS!');
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const contract = new ethers.Contract(contractAddress, contractABI, signer);
+      
+      if (action === 'upload' && selectedFile) {
+        // Upload file to IPFS and update blockchain
+        setUploadProgress(10);
         
-        // Auto-fill the update IPFS hash input if update section is visible
-        if (showUpdateSection) {
-          setNewIpfsHash(response.data.hash);
+        const formData = new FormData();
+        formData.append('image', selectedFile);
+        
+        // Simulate progress
+        const progressInterval = setInterval(() => {
+          setUploadProgress(prev => prev < 90 ? prev + 10 : prev);
+        }, 500);
+        
+        // Upload to IPFS
+        const response = await axios.post(${SERVER_URL}/upload, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        
+        clearInterval(progressInterval);
+        setUploadProgress(100);
+        
+        if (!response.data || !response.data.hash) {
+          throw new Error('Failed to retrieve IPFS hash from server');
         }
+        
+        const newHash = response.data.hash;
+        setIpfsHash(newHash);
+        
+        // Update blockchain with the new hash
+        setSuccess('Updating blockchain with new certificate...');
+        const tx = await contract.updateIpfsHash(certHash, newHash);
+        await tx.wait();
+        
+        setSuccess('Certificate successfully uploaded and linked!');
+        
+        // Refresh certificate data
+        const updatedCertificateData = await contract.verifyCertificate(certHash);
+        const updatedCertificate = {
+          ...certificate,
+          ipfsHash: updatedCertificateData[10]
+        };
+        
+        setCertificate(updatedCertificate);
+      } else if (action === 'update' && newIpfsHash) {
+        // Update IPFS hash only
+        setSuccess('Updating certificate reference...');
+        const tx = await contract.updateIpfsHash(certHash, newIpfsHash);
+        await tx.wait();
+        
+        setSuccess('Certificate reference successfully updated!');
+        
+        // Refresh certificate data
+        const updatedCertificateData = await contract.verifyCertificate(certHash);
+        const updatedCertificate = {
+          ...certificate,
+          ipfsHash: updatedCertificateData[10]
+        };
+        
+        setCertificate(updatedCertificate);
+        setNewIpfsHash('');
       } else {
-        throw new Error('Failed to retrieve IPFS hash from server');
+        throw new Error('Invalid action or missing data');
       }
     } catch (error) {
-      console.error('Error uploading to IPFS:', error);
-      setError(`Failed to upload file: ${error.message}`);
+      console.error('Error managing certificate:', error);
+      setError(Operation failed: ${error.message});
       setUploadProgress(0);
     } finally {
-      setIsUploading(false);
+      setIsProcessing(false);
     }
   };
 
-  // Copy IPFS hash to clipboard
+  // Copy to clipboard utility
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text)
       .then(() => {
@@ -663,25 +638,6 @@ const VerifyCertificate = () => {
         console.error('Failed to copy:', err);
         setError('Failed to copy to clipboard');
       });
-  };
-
-  // Toggle upload section
-  const toggleUploadSection = () => {
-    setShowUploadSection(!showUploadSection);
-    setShowUpdateSection(!showUpdateSection);
-  };
-  
-  // // Toggle update IPFS hash section
-  // const toggleUpdateSection = () => {
-  //   setShowUpdateSection(!showUpdateSection);
-  // };
-  
-  // Use uploaded IPFS hash for update
-  const useUploadedHashForUpdate = () => {
-    if (ipfsHash) {
-      setNewIpfsHash(ipfsHash);
-      setSuccess('IPFS hash copied to update field');
-    }
   };
 
   return (
@@ -696,7 +652,7 @@ const VerifyCertificate = () => {
         <div style={styles.walletStatus}>
           {connectedAccount ? (
             <div>
-              <span>Connected: {`${connectedAccount.substring(0, 6)}...${connectedAccount.substring(connectedAccount.length - 4)}`}</span>
+              <span>Connected: {${connectedAccount.substring(0, 6)}...${connectedAccount.substring(connectedAccount.length - 4)}}</span>
             </div>
           ) : (
             <div>
@@ -738,237 +694,210 @@ const VerifyCertificate = () => {
         )}
 
         {certificate && (
-          <div style={styles.certificateDisplay}>
-            <h2 style={styles.certificateTitle}>
-              Certificate 
-              {certificate.isValid ? 
-                <span style={styles.validBadge}>VALID</span> : 
-                <span style={styles.revokedBadge}>REVOKED</span>
-              }
-            </h2>
-
-            <div style={styles.certificateField}>
-              <span style={styles.fieldLabel}>Institution:</span>
-              <span style={styles.fieldValue}>{certificate.instituteName}</span>
-            </div>
-
-            <div style={styles.certificateField}>
-              <span style={styles.fieldLabel}>Department:</span>
-              <span style={styles.fieldValue}>{certificate.department}</span>
-            </div>
-
-            <div style={styles.certificateField}>
-              <span style={styles.fieldLabel}>Recipient:</span>
-              <span style={styles.fieldValue}>{certificate.firstName} {certificate.lastName}</span>
-            </div>
-
-            <div style={styles.certificateField}>
-              <span style={styles.fieldLabel}>ID:</span>
-              <span style={styles.fieldValue}>{certificate.certificantId}</span>
-            </div>
-
-            <div style={styles.certificateField}>
-              <span style={styles.fieldLabel}>Email:</span>
-              <span style={styles.fieldValue}>{certificate.email}</span>
-            </div>
-
-            <div style={styles.certificateField}>
-              <span style={styles.fieldLabel}>Course:</span>
-              <span style={styles.fieldValue}>{certificate.courseCompleted}</span>
-            </div>
-
-            <div style={styles.certificateField}>
-              <span style={styles.fieldLabel}>Completion Date:</span>
-              <span style={styles.fieldValue}>{certificate.completionDate}</span>
-            </div>
-
-            {certificate.notes && (
-              <div style={styles.certificateField}>
-                <span style={styles.fieldLabel}>Notes:</span>
-                <span style={styles.fieldValue}>{certificate.notes}</span>
-              </div>
-            )}
-
-
-            {/* View certificate on IPFS if hash is available */}
-            {certificate.ipfsHash && certificate.ipfsHash !== "N/A" && (
-              <div style={styles.certificateField}>
-                <span style={styles.fieldLabel}>View Certificate:</span>
-                <a 
-                  href={`https://gateway.pinata.cloud/ipfs/${certificate.ipfsHash}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={styles.ipfsLink}
+          <>
+            {/* Tabs navigation for certificate display and management */}
+            {isIssuer && certificate.isValid && (
+              <div style={styles.tabs}>
+                <button 
+                  style={activeTab === 'certificate' ? {...styles.tab, ...styles.activeTab} : styles.tab}
+                  onClick={() => setActiveTab('certificate')}
                 >
-                  Download
-                </a>
+                  Certificate Details
+                </button>
+                <button 
+                  style={activeTab === 'manage' ? {...styles.tab, ...styles.activeTab} : styles.tab}
+                  onClick={() => setActiveTab('manage')}
+                >
+                  Manage Certificate
+                </button>
               </div>
             )}
+            
+            {/* Certificate details view */}
+            {(activeTab === 'certificate' || !isIssuer) && (
+              <div style={styles.certificateDisplay}>
+                <h2 style={styles.certificateTitle}>
+                  Certificate 
+                  {certificate.isValid ? 
+                    <span style={styles.validBadge}>VALID</span> : 
+                    <span style={styles.revokedBadge}>REVOKED</span>
+                  }
+                </h2>
 
-            {/* Issuer Controls - show only if connected wallet is the certificate issuer */}
-            {isIssuer && (
-              <div style={styles.issuerControls}>
-                <h3 style={styles.issuerControlsTitle}>Issuer Controls</h3>
+                <div style={styles.certificateField}>
+                  <span style={styles.fieldLabel}>Institution:</span>
+                  <span style={styles.fieldValue}>{certificate.instituteName}</span>
+                </div>
+
+                <div style={styles.certificateField}>
+                  <span style={styles.fieldLabel}>Department:</span>
+                  <span style={styles.fieldValue}>{certificate.department}</span>
+                </div>
+
+                <div style={styles.certificateField}>
+                  <span style={styles.fieldLabel}>Recipient:</span>
+                  <span style={styles.fieldValue}>{certificate.firstName} {certificate.lastName}</span>
+                </div>
+
+                <div style={styles.certificateField}>
+                  <span style={styles.fieldLabel}>ID:</span>
+                  <span style={styles.fieldValue}>{certificate.certificantId}</span>
+                </div>
+
+                <div style={styles.certificateField}>
+                  <span style={styles.fieldLabel}>Email:</span>
+                  <span style={styles.fieldValue}>{certificate.email}</span>
+                </div>
+
+                <div style={styles.certificateField}>
+                  <span style={styles.fieldLabel}>Course:</span>
+                  <span style={styles.fieldValue}>{certificate.courseCompleted}</span>
+                </div>
+
+                <div style={styles.certificateField}>
+                  <span style={styles.fieldLabel}>Completion Date:</span>
+                  <span style={styles.fieldValue}>{certificate.completionDate}</span>
+                </div>
+
+                {certificate.notes && (
+                  <div style={styles.certificateField}>
+                    <span style={styles.fieldLabel}>Notes:</span>
+                    <span style={styles.fieldValue}>{certificate.notes}</span>
+                  </div>
+                )}
+
+                {/* View certificate on IPFS if hash is available */}
+                {certificate.ipfsHash && certificate.ipfsHash !== "N/A" && (
+                  <div style={styles.certificateField}>
+                    <span style={styles.fieldLabel}>View Certificate:</span>
+                    <a 
+                      href={https://gateway.pinata.cloud/ipfs/${certificate.ipfsHash}}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={styles.ipfsLink}
+                    >
+                      Download
+                    </a>
+                  </div>
+                )}
                 
-                {/* Revoke button - only shown if certificate is valid */}
-                {certificate.isValid && (
+                {/* Revoke button - always visible if issuer and certificate is valid */}
+                {isIssuer && certificate.isValid && (
                   <button 
                     onClick={handleRevokeCertificate} 
                     style={styles.revokeButton}
-                    disabled={isLoading}
+                    disabled={isProcessing}
                   >
-                    {isLoading ? 'Revoking...' : 'Revoke Certificate'}
+                    {isProcessing ? 'Processing...' : 'Revoke Certificate'}
                   </button>
-                )}
-                
-                {/* Upload to IPFS Button - moved here from general access */}
-                {certificate.isValid && (
-                  <button 
-                    onClick={toggleUploadSection} 
-                    style={styles.uploadButton}
-                  >
-                    {showUploadSection ? 'Hide IPFS Upload' : 'Upload Certificate to IPFS'}
-                  </button>
-                )}
-                
-                {/* Update IPFS Hash Button - only shown if certificate is valid */}
-                {/* {certificate.isValid && (
-                  <button 
-                    onClick={toggleUpdateSection} 
-                    style={styles.updateButton}
-                  >
-                    {showUpdateSection ? 'Hide IPFS Update' : 'Update IPFS Hash'}
-                  </button>
-                )} */}
-                
-                {/* IPFS Upload Section - moved inside issuer controls */}
-                {showUploadSection && certificate.isValid && (
-                  <div style={styles.uploadSection}>
-                    <h4 style={styles.uploadTitle}>Upload Certificate to IPFS</h4>
-                    <p style={styles.uploadDescription}>
-                      Upload your certificate file to IPFS for permanent, decentralized storage.
-                      The resulting IPFS hash can be used for verification.
-                    </p>
-
-                    <div style={styles.formGroup}>
-                      <label style={styles.label}>Select Certificate File</label>
-                      <input
-                        type="file"
-                        id="fileInput"
-                        onChange={handleFileChange}
-                        style={styles.fileInput}
-                        accept="image/*,.pdf"
-                      />
-                      <label htmlFor="fileInput" style={styles.fileInputLabel}>
-                        {selectedFile ? 'Change file' : 'Choose a file'}
-                      </label>
-
-                      {selectedFile && (
-                        <div style={styles.selectedFile}>
-                          <span>{selectedFile.name}</span>
-                          <button 
-                            type="button" 
-                            onClick={clearSelectedFile}
-                            style={styles.clearFileBtn}
-                          >
-                            ×
-                          </button>
-                        </div>
-                      )}
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={handleFileUpload}
-                      style={styles.button}
-                      disabled={!selectedFile || isUploading}
-                    >
-                      {isUploading ? 'Uploading...' : 'Upload to IPFS'}
-                    </button>
-
-                    {isUploading && (
-                      <div style={styles.progressBar}>
-                        <div 
-                          style={{
-                            ...styles.progressFill,
-                            width: `${uploadProgress}%`
-                          }}
-                        />
-                      </div>
-                    )}
-
-                    {ipfsHash && (
-                      <div style={styles.ipfsResult}>
-                        <p><strong>IPFS Hash:</strong></p>
-                        <div style={{ display: 'flex', alignItems: 'center', wordBreak: 'break-all' }}>
-                          <span>{ipfsHash}</span>
-                          <button 
-                            onClick={() => copyToClipboard(ipfsHash)}
-                            style={styles.copyButton}
-                          >
-                            Copy
-                          </button>
-                        </div>
-                        <p><strong>Gateway URL:</strong></p>
-                        <a 
-                          href={`https://gateway.pinata.cloud/ipfs/${ipfsHash}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={styles.ipfsLink}
-                        >
-                          https://gateway.pinata.cloud/ipfs/{ipfsHash}
-                        </a>
-                      </div>
-                    )}
-                  </div>
-                )}
-                
-                {/* Update IPFS Hash Section */}
-                {showUpdateSection && certificate.isValid && (
-                  <div style={styles.updateSection}>
-                    <h4 style={styles.updateTitle}>Update Certificate IPFS Hash</h4>
-                    <p style={styles.updateDescription}>
-                      Update the IPFS hash associated with this certificate.
-                    </p>
-                    
-                    <div style={styles.formGroup}>
-                      <label style={styles.label} htmlFor="newIpfsHash">
-                        New IPFS Hash
-                      </label>
-                      <input
-                        style={styles.input}
-                        type="text"
-                        id="newIpfsHash"
-                        value={newIpfsHash}
-                        onChange={(e) => setNewIpfsHash(e.target.value)}
-                        placeholder="Enter new IPFS hash"
-                        required
-                      />
-                    </div>
-                    
-                    {ipfsHash && (
-                      <button
-                        type="button"
-                        onClick={useUploadedHashForUpdate}
-                        style={styles.secondaryButton}
-                      >
-                        Use Uploaded Hash
-                      </button>
-                    )}
-                    
-                    <button
-                      type="button"
-                      onClick={handleUpdateIpfsHash}
-                      style={styles.button}
-                      disabled={!newIpfsHash || isUpdatingIpfs}
-                    >
-                      {isUpdatingIpfs ? 'Updating...' : 'Update IPFS Hash'}
-                    </button>
-                  </div>
                 )}
               </div>
             )}
-          </div>
+            
+            {/* Certificate management view */}
+            {activeTab === 'manage' && isIssuer && certificate.isValid && (
+              <div style={styles.managementSection}>
+                <h3 style={styles.sectionTitle}>Certificate Management</h3>
+                
+                <div style={styles.formGroup}>
+                  <label style={styles.label}>Upload New Certificate</label>
+                  <input
+                    type="file"
+                    id="certificateFile"
+                    onChange={handleFileChange}
+                    style={styles.fileInput}
+                  />
+                  <label htmlFor="certificateFile" style={styles.fileInputLabel}>
+                    {selectedFile ? selectedFile.name : "Click to select a file"}
+                  </label>
+                  
+                  {selectedFile && (
+                    <div style={styles.selectedFile}>
+                      <span>{selectedFile.name}</span>
+                      <button 
+                        type="button" 
+                        onClick={clearSelectedFile} 
+                        style={styles.clearFileBtn}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  )}
+                  
+                  {isUploading && (
+                    <div style={styles.progressBar}>
+                      <div 
+                        style={{
+                          ...styles.progressFill,
+                          width: ${uploadProgress}%
+                        }}
+                      />
+                    </div>
+                  )}
+                  
+                  <button 
+                    onClick={() => handleCertificateManagement('upload')} 
+                    style={styles.actionButton}
+                    disabled={!selectedFile || isProcessing}
+                  >
+                    {isProcessing ? 'Processing...' : 'Upload & Update Certificate'}
+                  </button>
+                </div>
+                
+                <div style={styles.divider}></div>
+                
+                {/* <div style={styles.formGroup}>
+                  <label style={styles.label}>Manual IPFS Update</label>
+                  <input
+                    style={styles.input}
+                    type="text"
+                    value={newIpfsHash}
+                    onChange={(e) => setNewIpfsHash(e.target.value)}
+                    placeholder="Enter IPFS hash"
+                  />
+                  
+                  {ipfsHash && (
+                    <button 
+                      onClick={() => setNewIpfsHash(ipfsHash)} 
+                      style={{...styles.actionButton, marginTop: '8px'}}
+                      disabled={isProcessing}
+                    >
+                      Use Uploaded Hash
+                    </button>
+                  )}
+                  
+                  <button 
+                    onClick={() => handleCertificateManagement('update')} 
+                    style={styles.actionButton}
+                    disabled={!newIpfsHash || isProcessing}
+                  >
+                    {isProcessing ? 'Processing...' : 'Update Certificate Reference'}
+                  </button> */}
+                {/* </div> */}
+                
+                {/* {ipfsHash && (
+                  <div style={styles.ipfsResult}>
+                    <p>Latest Upload: 
+                      <a 
+                        href={https://gateway.pinata.cloud/ipfs/${ipfsHash}}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={styles.ipfsLink}
+                      >
+                        {ipfsHash}
+                      </a>
+                      <button 
+                        onClick={() => copyToClipboard(ipfsHash)} 
+                        style={styles.copyButton}
+                      >
+                        Copy
+                      </button>
+                    </p>
+                  </div>
+                )} */}
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
