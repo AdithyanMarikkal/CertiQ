@@ -6,6 +6,7 @@ const multer = require('multer');
 const axios = require('axios');
 const fs = require('fs');
 const emailRoutes = require('./routes/emailRoutes');
+const abiRoutes = require("./routes/abi");
 
 
 
@@ -15,6 +16,7 @@ app.use(cors());
 const upload = multer({ dest: 'uploads/' });
 
 app.use('/api',emailRoutes)
+app.use("/api", abiRoutes);
 
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const ALCHEMY_URL = process.env.ALCHEMY_URL;
