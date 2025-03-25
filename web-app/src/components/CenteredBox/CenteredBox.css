@@ -314,6 +314,23 @@ main {
   opacity: 0.2;
 }
 
+.features-section {
+  padding-top: 4rem;  /* Adds space above the pre-title */
+  padding-bottom: 2rem;  /* Adds space below the features grid */
+}
+
+.features-section .pre-title {
+  margin-bottom: 1rem;  /* Space between pre-title and main title */
+}
+
+.features-section .title {
+  margin-bottom: 2rem;  /* Space between main title and features grid */
+}
+
+.features-section .features-grid {
+  gap: 1.5rem;  /* Increases gap between feature items */
+}
+
 /* Responsive Styles */
 @media (max-width: 1024px) {
   .hero-content, .hero-card {

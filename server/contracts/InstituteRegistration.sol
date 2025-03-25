@@ -45,6 +45,7 @@ contract InstituteRegistration {
     mapping(address => PendingInstitute) public pendingRequests;
 
     event InstituteRequested(address indexed instituteAddress, string name);
+    event InstituteRejected(address indexed instituteAddress, string name);
     event InstituteRegistered(address indexed instituteAddress, string name, uint256 registrationTime);
     event CourseAdded(address indexed instituteAddress, string courseName);
     event CertificateIssued(
@@ -94,6 +95,16 @@ contract InstituteRegistration {
         delete pendingRequests[_institute];
         emit InstituteRegistered(_institute, pending.name , block.timestamp);
     }
+
+    function rejectRegistration(address _institute) public onlyOwner {
+    require(pendingRequests[_institute].exists, "No pending request found");
+    
+    // Optional: Emit an event for rejections
+    emit InstituteRejected(_institute, pendingRequests[_institute].name);
+    
+    // Remove the pending request
+    delete pendingRequests[_institute];
+}
 
     function isRegistered(address _institute) public view returns (bool) {
         return registeredInstitutes[_institute].isRegistered;
