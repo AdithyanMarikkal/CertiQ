@@ -20,7 +20,7 @@ const contractABI = [
   }
 ];
 
-const Navbar = () => {
+const Navbar = ({ featuresRef, aboutRef }) => {
   const [account, setAccount] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [contract, setContract] = useState(null);
@@ -29,6 +29,22 @@ const Navbar = () => {
   const location = useLocation();
   const [isRegistered, setIsRegistered] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
+
+
+  const scrollToSection = (elementRef) => {
+    // Only scroll if on home page
+    if (location.pathname === "/") {
+      elementRef.current?.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      // Navigate to home page
+      navigate("/", { 
+        state: { 
+          scrollTo: elementRef.current 
+        } 
+      });
+    }
+  };
+
 
   useEffect(() => {
     const initContract = async () => {
@@ -136,11 +152,10 @@ const Navbar = () => {
         </a>
         <div className="nav-menu">
           <ul className="nav-links">
-            <li><a href="/" className="nav-link">Home</a></li>
-            <li><a href="#" className="nav-link">Features</a></li>
-            <li><a href="#" className="nav-link">Use Cases</a></li>
-            <li><a href="#" className="nav-link">Pricing</a></li>
-            <li><a href="#" className="nav-link">About</a></li>
+
+            <li><a href="/" className="nav-link" onClick={() => navigate("/")}>Home</a></li>
+            <li><a href="#features" className="nav-link" onClick={() => scrollToSection(featuresRef)}>Features</a></li>
+            <li><a href="#about" className="nav-link" onClick={() => scrollToSection(aboutRef)}>About</a></li>
           </ul>
           <div className="toggle-container">
             <button 
@@ -154,7 +169,7 @@ const Navbar = () => {
               className="button btn-outline" 
               onClick={connectWallet}
             >
-              {account ? "Connected" : "Log In"}
+              {account ? "Connected" : "Connect"}
             </button>
             {location.pathname === "/" && account && !isRegistered && (
               <button 

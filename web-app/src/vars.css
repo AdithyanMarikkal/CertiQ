@@ -1,9 +1,26 @@
-:root{
-    --color-text:#fff;
-    --color-primary: #576cbc;
-    --color-secondary:#19376d;
-    --color-dark:#bb1b1b;
-    --color-bg: #ff3c00;
-
-    --font-roboto:  "Roboto";
-}
+/* Replace your current vars.css content with these variables */
+:root {
+    /* Light Mode Variables */
+    --color-bg: #f8f9fa;
+    --color-card-bg: #ffffff;
+    --color-text: #212529;
+    --color-text-secondary: #6c757d;
+    --color-border: #e9ecef;
+    --color-primary: #6366f1;
+    --color-primary-hover: #4f46e5;
+    --color-secondary: #10b981;
+    --color-shadow: rgba(0, 0, 0, 0.1);
+    
+    /* Dark Mode Variables (add these if you plan to implement dark mode) */
+    --color-dark-bg: #111827;
+    --color-dark-card-bg: #1f2937;
+    --color-dark-text: #f3f4f6;
+    --color-dark-text-secondary: #9ca3af;
+    --color-dark-border: #374151;
+    --color-dark-primary: #818cf8;
+    --color-dark-primary-hover: #a5b4fc;
+    --color-dark-secondary: #34d399;
+    --color-dark-shadow: rgba(0, 0, 0, 0.3);
+  }
+  
+  

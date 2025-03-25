@@ -1,16 +1,24 @@
 /* @import "./vars.css"; */
 
+/* Your App class */
 .App {
   background-color: var(--color-bg);
-  background-image: url('./assets/back.jpeg'); /* Adjust path to your image */
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  height: 100vh;
+  /* Remove the background image for a cleaner look matching CertiQ */
+  /* background-image: url('./assets/back.jpeg'); */
+  min-height: 100vh;
   width: 100%;
-  
+  color: var(--color-text);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  display: flex;
+  flex-direction: column;
 }
 
-
-
-  
+/* Add the new appContainer class */
+.appContainer {
+  background-image: url('../assets/background.jpg');
+  background-size: cover;
+  background-position: center;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}

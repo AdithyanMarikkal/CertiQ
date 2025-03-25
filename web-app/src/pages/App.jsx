@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import { ethers } from "ethers";
 import Navbar from "../components/Navbar/Navbar";
@@ -21,14 +21,21 @@ const contractABI = [
 function App() {
   const [isAdmin, setIsAdmin] = useState(false);
   const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS || "";
+  const featuresRef = useRef(null);
+  const aboutRef = useRef(null);
 
   return (
     <Router>
       <div>
-        <Navbar />
+        <Navbar 
+        featuresRef={featuresRef} 
+        aboutRef={aboutRef}
+        />
         <CheckAdmin setIsAdmin={setIsAdmin} contractAddress={contractAddress} />
         <Routes>
-          <Route path="/" element={<CenteredBox />} />
+          <Route path="/" element={<CenteredBox 
+                featuresRef={featuresRef} 
+                aboutRef={aboutRef} />} />
           <Route path="/register" element={<Register />} />
           <Route path="/issue" element={<Issue />} />
           <Route path="/verify" element={<Verify />} />
