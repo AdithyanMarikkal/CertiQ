@@ -1,139 +1,170 @@
-/* InstituteRegistration.css */
-:root {
-  --primary-color: #4a6fa5;
-  --primary-hover: #3a5a8a;
-  --secondary-color: #e9ecef;
-  --text-color: #333;
-  --error-color: #dc3545;
-  --success-color: #28a745;
-  --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  --input-border: #ced4da;
-  --card-bg: #ffffff;
+/* Base styles for register page */
+.register-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    /* background-color: var(--light-bg); */
+    color: var(--light-text);
+    transition: background-color 0.3s, color 0.3s;
 }
 
-.registration-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  padding: 20px;
-  background-image: url('/images/blockchain-background.jpg'); /* Path to your background image */
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-  position: relative;
+/* Dark Mode Styles */
+body.dark-mode .register-container {
+    /* background-color: var(--dark-bg); */
+    color: var(--dark-text);
+}
+.register-card {
+    background-color: var(--light-card-bg);
+    border-radius: 1rem;
+    box-shadow: 0 10px 25px var(--light-shadow);
+    padding: 2rem;
+    width: 100%;
+    max-width: 500px;
+    transition: background-color 0.3s, box-shadow 0.3s;
 }
 
-/* Overlay to improve text readability over the background image */
-.registration-container::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5); /* Dark overlay for better contrast */
-  z-index: 1;
+body.dark-mode .register-card {
+    background-color: var(--dark-card-bg);
+    box-shadow: 0 10px 25px var(--dark-shadow);
 }
 
-.registration-card {
-  background-color: var(--card-bg);
-  border-radius: 8px;
-  box-shadow: var(--box-shadow);
-  padding: 30px;
-  width: 100%;
-  max-width: 500px;
-  animation: fadeIn 0.5s ease-in-out;
-  position: relative;
-  z-index: 2; /* Places the card above the overlay */
+.register-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    color: var(--light-primary);
 }
 
-.registration-title {
-  color: var(--primary-color);
-  text-align: center;
-  margin-bottom: 25px;
-  font-size: 28px;
-  font-weight: 600;
+body.dark-mode .register-title {
+    color: var(--dark-primary);
+}
+
+.blockchain-tag {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    background-color: rgba(99, 102, 241, 0.1);
+    color: var(--light-primary);
+}
+
+body.dark-mode .blockchain-tag {
+    background-color: rgba(129, 140, 248, 0.1);
+    color: var(--dark-primary);
 }
 
 .form-group {
-  margin-bottom: 20px;
+    margin-bottom: 1rem;
 }
 
 .form-group label {
-  display: block;
-  margin-bottom: 8px;
-  font-weight: 500;
-  color: var(--text-color);
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--light-text-secondary);
 }
 
-input {
-  width: 100%;
-  padding: 12px 15px;
-  border: 1px solid var(--input-border);
-  border-radius: 4px;
-  font-size: 16px;
-  transition: all 0.3s ease;
-  box-sizing: border-box;
+body.dark-mode .form-group label {
+    color: var(--dark-text-secondary);
 }
 
-input:focus {
-  border-color: var(--primary-color);
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(74, 111, 165, 0.25);
+.register-input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--light-border);
+    border-radius: 0.5rem;
+    background-color: var(--light-card-bg);
+    color: var(--light-text);
+    transition: border-color 0.3s, box-shadow 0.3s;
 }
 
-input:disabled {
-  background-color: var(--secondary-color);
-  cursor: not-allowed;
+body.dark-mode .register-input {
+    background-color: var(--dark-card-bg);
+    border-color: var(--dark-border);
+    color: var(--dark-text);
 }
 
-.registration-button {
-  width: 100%;
-  padding: 12px 15px;
-  background-color: var(--primary-color);
-  color: white;
-  border: none;
-  border-radius: 4px;
-  font-size: 16px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  margin-top: 10px;
+.register-input:focus {
+    outline: none;
+    border-color: var(--light-primary);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
 }
 
-.registration-button:hover:not(:disabled) {
-  background-color: var(--primary-hover);
+body.dark-mode .register-input:focus {
+    border-color: var(--dark-primary);
+    box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.1);
 }
 
-.registration-button:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
+.register-button {
+    width: 100%;
+    padding: 0.75rem;
+    border: none;
+    border-radius: 0.5rem;
+    background-color: var(--light-primary);
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.register-button:hover:not(:disabled) {
+    background-color: var(--light-primary-hover);
 }
 
-/* Responsive adjustments */
-@media (max-width: 600px) {
-  .registration-card {
-    padding: 20px;
-  }
-  
-  .registration-title {
-    font-size: 24px;
-  }
-  
-  input, .registration-button {
-    padding: 10px 12px;
-  }
+body.dark-mode .register-button {
+    background-color: var(--dark-primary);
+}
+
+body.dark-mode .register-button:hover:not(:disabled) {
+    background-color: var(--dark-primary-hover);
+}
+
+.register-button:disabled {
+    background-color: var(--light-text-secondary);
+    cursor: not-allowed;
+}
+
+body.dark-mode .register-button:disabled {
+    background-color: var(--dark-text-secondary);
+}
+
+.register-features {
+    margin-top: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.feature-item {
+    display: flex;
+    align-items: center;
+    color: var(--light-text-secondary);
+    font-size: 0.875rem;
+}
+
+body.dark-mode .feature-item {
+    color: var(--dark-text-secondary);
+}
+
+.checkmark {
+    margin-right: 0.5rem;
+    color: var(--light-secondary);
+}
+
+body.dark-mode .checkmark {
+    color: var(--dark-secondary);
+}
+
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .register-card {
+        margin: 1rem;
+        padding: 1.5rem;
+    }
 }

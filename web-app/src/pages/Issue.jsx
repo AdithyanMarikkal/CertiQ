@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { ethers } from 'ethers';
 import { QRCodeCanvas } from 'qrcode.react';import contractABI from '../../../server/artifacts/contracts/InstituteRegistration.sol/InstituteRegistration.json';
 import { useRef } from 'react';
-import "./issue.css"
+import "../style/issue.css"
 const verifyBaseUrl = import.meta.env.VITE_VERIFY_URL || 'http://localhost:5173/verify';
 const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
 const Issue = () => {
