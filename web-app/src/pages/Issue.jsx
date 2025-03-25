@@ -146,6 +146,39 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: '8px'
+  },
+  // New email section styles
+  emailSection: {
+    marginTop: '24px',
+    padding: '16px',
+    border: '1px solid #e5e5e5',
+    borderRadius: '8px',
+    backgroundColor: 'white'
+  },
+  emailSectionTitle: {
+    fontSize: '16px',
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: '16px'
+  },
+  sendEmailButton: {
+    backgroundColor: '#10b981',
+    border: 'none',
+    color: 'white',
+    padding: '8px 16px',
+    borderRadius: '4px',
+    fontSize: '14px',
+    fontWeight: '500',
+    cursor: 'pointer',
+    transition: 'all 0.2s'
+  },
+  successMessage: {
+    marginTop: '16px',
+    padding: '12px',
+    backgroundColor: '#ecfdf5',
+    borderRadius: '4px',
+    color: '#065f46',
+    fontWeight: '500'
   }
 };
 
@@ -166,8 +199,9 @@ const Issue = () => {
   const [status, setStatus] = useState('');
   const [certHash, setCertHash] = useState('');
   const [transactionComplete, setTransactionComplete] = useState(false);
-  const qrCodeRef= useRef(null);
-
+  const qrCodeRef = useRef(null);
+  const [customMessage, setCustomMessage] = useState('');
+  const [emailSent, setEmailSent] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -178,51 +212,45 @@ const Issue = () => {
   };
 
   const handleSubmit = async (e) => {
-      e.preventDefault();
-      setStatus('Processing transaction...');
-      setTransactionComplete(false);
-      setCertHash('');
+    e.preventDefault();
+    setStatus('Processing transaction...');
+    setTransactionComplete(false);
+    setCertHash('');
 
-      if (!window.ethereum) {
-        setStatus('Metamask not detected. Please install Metamask.');
-        return;
-      }
-  
-      try {
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        const signer = await provider.getSigner();  // Get the connected wallet
-  
-        const contract = new ethers.Contract(contractAddress, contractABI.abi, signer);
-  
-        const tx = await contract.issueCertificate(
-          formData.instituteName,
-          formData.department,
-          formData.firstName,
-          formData.lastName,
-          formData.certificantId,
-          formData.email,
-          formData.courseCompleted,
-          Math.floor(new Date(formData.completionDate).getTime() / 1000), // Convert to Unix timestamp
-          formData.notes,
-          formData.ipfsHash // IPFS hash for certificate storage
-        );
+    if (!window.ethereum) {
+      setStatus('Metamask not detected. Please install Metamask.');
+      return;
+    }
 
-        setStatus('Transaction sent. Waiting for confirmation...');
-        const receipt = await tx.wait();
-        // Extract certificate hash from transaction logs
-        const hash = receipt.logs[0].topics[1];
-        // Remove the leading "0x" and any leading zeros to get the clean hash
-        // const cleanHash = hash.replace(/^0x0*/, '');
+    try {
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const contract = new ethers.Contract(contractAddress, contractABI.abi, signer);
 
-        
-        setCertHash(hash);
-        setTransactionComplete(true);
-        setStatus(`Certificate issued successfully! Certificate Hash: ${hash}`);
-      } catch (error) {
-        console.error(error);
-        setStatus(`Error: ${error.message}`);
-      }
-    };
+      const tx = await contract.issueCertificate(
+        formData.instituteName,
+        formData.department,
+        formData.firstName,
+        formData.lastName,
+        formData.certificantId,
+        formData.email,
+        formData.courseCompleted,
+        Math.floor(new Date(formData.completionDate).getTime() / 1000),
+        formData.notes,
+        formData.ipfsHash
+      );
+
+      setStatus('Transaction sent. Waiting for confirmation...');
+      const receipt = await tx.wait();
+      const hash = receipt.logs[0].topics[1];
+      setCertHash(hash);
+      setTransactionComplete(true);
+      setStatus(Certificate issued successfully! Certificate Hash: ${hash});
+    } catch (error) {
+      console.error(error);
+      setStatus(Error: ${error.message});
+    }
+  };
 
   const handleCancel = () => {
     setFormData({
@@ -243,25 +271,55 @@ const Issue = () => {
   };
 
   const downloadQRCode = () => {
-    // Get the canvas element
     const canvas = document.getElementById('certificate-qr-code');
     if (!canvas) return;
 
-    // Create a temporary link element
     const link = document.createElement('a');
-    
-    // Set link attributes
-    link.download = `certificate-${formData.certificantId}-verification-qr.png`;
+    link.download = certificate-${formData.certificantId}-verification-qr.png;
     link.href = canvas.toDataURL('image/png');
-    
-    // Append to document, click, and remove
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
-  const verificationUrl = certHash ? `${verifyBaseUrl}?hash=${certHash}` : '';
+  const verificationUrl = certHash ? ${verifyBaseUrl}?hash=${certHash} : '';
 
+  const sendEmail = async () => {
+    setStatus('Sending email...');
+    const canvas = document.getElementById('certificate-qr-code');
+    const qrCodeImage = canvas ? canvas.toDataURL('image/png') : '';
+    const emailData = {
+      recipientEmail: formData.email,
+      studentName: ${formData.firstName} ${formData.lastName},
+      courseName: formData.courseCompleted,
+      instituteName: formData.instituteName,
+      department: formData.department,
+      completionDate: formData.completionDate,
+      certificateHash: certHash,
+      verificationUrl: ${verifyBaseUrl}?hash=${certHash},
+      qrCodeImage,
+      additionalMessage: customMessage.trim() ? customMessage : null
+    };
+
+    try {
+      const response = await fetch(${import.meta.env.VITE_BACKEND_URL}/api/send-email, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(emailData)
+      });
+
+      if (response.ok) {
+        setStatus('Email sent successfully!');
+        setEmailSent(true);
+      } else {
+        setStatus('Failed to send email. Please try again.');
+      }
+    } catch (error) {
+      console.error('Email sending error:', error);
+      setStatus('Error sending email.');
+    }
+  };
+  
 
   return (
     <div style={styles.container}>
@@ -465,9 +523,46 @@ const Issue = () => {
           </div>
           {/* {status && <p>{status}</p>} */}
         </form>
+        <div>
+          {/* Email sending section */}
+          {transactionComplete && !emailSent && (
+            <div style={styles.emailSection}>
+              <h3 style={styles.emailSectionTitle}>
+                Send Certificate to Recipient
+              </h3>
+              
+              <div style={styles.formGroup}>
+                <label style={styles.label} htmlFor="customMessage">
+                  Custom Message (Optional)
+                </label>
+                <textarea
+                  style={styles.textarea}
+                  id="customMessage"
+                  placeholder="Add a message to include in the email..."
+                  value={customMessage}
+                  onChange={(e) => setCustomMessage(e.target.value)}
+                />
+              </div>
+              
+              <button
+                type="button"
+                onClick={sendEmail}
+                style={styles.sendEmailButton}
+              >
+                Send Email to Recipient
+              </button>
+            </div>
+          )}
+
+          {emailSent && (
+            <div style={styles.successMessage}>
+              <p style={{margin: 0}}>Email sent successfully to {formData.email}</p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
 };
 
-export default Issue;
+export default Issue;
