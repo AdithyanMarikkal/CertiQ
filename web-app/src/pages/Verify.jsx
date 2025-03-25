@@ -3,304 +3,7 @@ import { ethers } from 'ethers';
 import InstituteRegistration from '../../../server/artifacts/contracts/InstituteRegistration.sol/InstituteRegistration.json';
 import { useSearchParams } from "react-router-dom";
 import axios from 'axios'; 
-
-const styles = {
-  container: {
-    minHeight: '100vh',
-    backgroundImage: 'url("../assets/back.jpeg")',
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
-    backgroundRepeat: 'no-repeat',
-    backgroundAttachment: 'fixed',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '24px'
-  },
-  verificationWrapper: {
-    maxWidth: '700px',
-    width: '90%',
-    backgroundColor: 'rgba(255, 255, 255, 0.5)',
-    borderRadius: '8px',
-    boxShadow: '0 4px 10px rgba(0, 0, 0, 0.2)',
-    padding: '16px',
-    backdropFilter: 'blur(12px)',
-    maxHeight: '85vh',
-    overflowY: 'auto'
-  },
-  header: {
-    padding: '24px',
-    borderBottom: '1px solid #e5e5e5'
-  },
-  title: {
-    fontSize: '24px',
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: '8px'
-  },
-  subtitle: {
-    color: '#666',
-    fontSize: '14px'
-  },
-  form: {
-    padding: '24px'
-  },
-  formGroup: {
-    marginBottom: '16px'
-  },
-  label: {
-    display: 'block',
-    marginBottom: '8px',
-    fontSize: '14px',
-    fontWeight: '500',
-    color: '#333'
-  },
-  input: {
-    width: '100%',
-    padding: '8px 12px',
-    border: '1px solid #ddd',
-    borderRadius: '4px',
-    fontSize: '14px',
-    outline: 'none',
-    transition: 'border-color 0.2s',
-  },
-  button: {
-    padding: '8px 16px',
-    borderRadius: '4px',
-    fontSize: '14px',
-    fontWeight: '500',
-    cursor: 'pointer',
-    transition: 'all 0.2s',
-    backgroundColor: '#2563eb',
-    border: 'none',
-    color: 'white',
-    marginTop: '16px',
-    width: '100%'
-  },
-  revokeButton: {
-    padding: '8px 16px',
-    borderRadius: '4px',
-    fontSize: '14px',
-    fontWeight: '500',
-    cursor: 'pointer',
-    transition: 'all 0.2s',
-    backgroundColor: '#DC2626',
-    border: 'none',
-    color: 'white',
-    marginTop: '16px',
-    width: '100%'
-  },
-  actionButton: {
-    padding: '8px 16px',
-    borderRadius: '4px',
-    fontSize: '14px',
-    fontWeight: '500',
-    cursor: 'pointer',
-    transition: 'all 0.2s',
-    backgroundColor: '#8B5CF6',
-    border: 'none',
-    color: 'white',
-    marginTop: '16px',
-    width: '100%'
-  },
-  connectButton: {
-    padding: '8px 16px',
-    borderRadius: '4px',
-    fontSize: '14px',
-    fontWeight: '500',
-    cursor: 'pointer',
-    transition: 'all 0.2s',
-    backgroundColor: '#047857',
-    border: 'none',
-    color: 'white',
-    marginTop: '16px',
-    width: '100%'
-  },
-  fileInput: {
-    display: 'none'
-  },
-  fileInputLabel: {
-    display: 'block',
-    padding: '8px 12px',
-    border: '1px dashed #ddd',
-    borderRadius: '4px',
-    fontSize: '14px',
-    cursor: 'pointer',
-    backgroundColor: '#f9f9f9',
-    textAlign: 'center',
-    marginTop: '8px'
-  },
-  selectedFile: {
-    marginTop: '8px',
-    padding: '8px',
-    backgroundColor: '#f0f9ff',
-    borderRadius: '4px',
-    fontSize: '14px',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center'
-  },
-  clearFileBtn: {
-    background: 'none',
-    border: 'none',
-    color: '#DC2626',
-    cursor: 'pointer',
-    fontSize: '16px'
-  },
-  divider: {
-    margin: '24px 0',
-    borderTop: '1px solid #ddd'
-  },
-  managementSection: {
-    padding: '16px 24px',
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
-    borderRadius: '4px',
-    marginTop: '16px',
-    border: '1px solid #d1d5db'
-  },
-  sectionTitle: {
-    fontSize: '18px',
-    fontWeight: 'bold',
-    marginBottom: '12px'
-  },
-  sectionDescription: {
-    fontSize: '14px',
-    color: '#666',
-    marginBottom: '16px'
-  },
-  progressBar: {
-    width: '100%',
-    height: '8px',
-    backgroundColor: '#e0e0e0',
-    borderRadius: '4px',
-    marginTop: '8px',
-    position: 'relative',
-    overflow: 'hidden'
-  },
-  progressFill: {
-    height: '100%',
-    backgroundColor: '#2563eb',
-    transition: 'width 0.3s'
-  },
-  ipfsResult: {
-    marginTop: '16px',
-    padding: '12px',
-    backgroundColor: '#f9f9f9',
-    borderRadius: '4px',
-    border: '1px solid #ddd'
-  },
-  ipfsLink: {
-    color: '#2563eb',
-    textDecoration: 'none',
-    wordBreak: 'break-all'
-  },
-  certificateDisplay: {
-    marginTop: '24px',
-    padding: '16px',
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-    borderRadius: '8px',
-    border: '1px solid #ddd'
-  },
-  certificateTitle: {
-    fontSize: '20px',
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: '16px',
-    textAlign: 'center'
-  },
-  certificateField: {
-    marginBottom: '12px',
-    padding: '8px',
-    borderBottom: '1px solid #eee'
-  },
-  fieldLabel: {
-    fontWeight: '500',
-    color: '#666',
-    marginRight: '8px',
-    display: 'inline-block',
-    width: '140px'
-  },
-  fieldValue: {
-    color: '#333',
-    fontWeight: '400'
-  },
-  validBadge: {
-    backgroundColor: '#10B981',
-    color: 'white',
-    padding: '4px 8px',
-    borderRadius: '4px',
-    fontSize: '12px',
-    fontWeight: 'bold',
-    display: 'inline-block',
-    marginLeft: '8px'
-  },
-  revokedBadge: {
-    backgroundColor: '#EF4444',
-    color: 'white',
-    padding: '4px 8px',
-    borderRadius: '4px',
-    fontSize: '12px',
-    fontWeight: 'bold',
-    display: 'inline-block',
-    marginLeft: '8px'
-  },
-  loadingSpinner: {
-    display: 'flex',
-    justifyContent: 'center',
-    padding: '24px'
-  },
-  errorMessage: {
-    color: '#EF4444',
-    marginTop: '16px',
-    padding: '8px',
-    backgroundColor: '#FEE2E2',
-    borderRadius: '4px'
-  },
-  successMessage: {
-    color: '#047857',
-    marginTop: '16px',
-    padding: '8px',
-    backgroundColor: '#D1FAE5',
-    borderRadius: '4px'
-  },
-  walletStatus: {
-    padding: '8px 16px',
-    margin: '0 24px',
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
-    borderRadius: '4px',
-    fontSize: '14px',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center'
-  },
-  copyButton: {
-    background: 'none',
-    border: 'none',
-    color: '#2563eb',
-    cursor: 'pointer',
-    marginLeft: '8px',
-    fontSize: '14px'
-  },
-  tabs: {
-    display: 'flex',
-    borderBottom: '1px solid #ddd',
-    margin: '0 24px 16px 24px'
-  },
-  tab: {
-    padding: '8px 16px',
-    cursor: 'pointer',
-    fontSize: '14px',
-    backgroundColor: 'transparent',
-    border: 'none',
-    borderBottom: '2px solid transparent',
-    transition: 'all 0.2s'
-  },
-  activeTab: {
-    borderBottom: '2px solid #2563eb',
-    color: '#2563eb',
-    fontWeight: '500'
-  }
-};
+import '../style/verify.css';
 
 const contractABI = InstituteRegistration.abi;
 const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
@@ -641,267 +344,226 @@ const VerifyCertificate = () => {
   };
 
   return (
-    <div style={styles.container}>
-      <div style={styles.verificationWrapper}>
-        <div style={styles.header}>
-          <h1 style={styles.title}>Certificate Verification</h1>
-          <p style={styles.subtitle}>Enter the certificate key to verify authenticity</p>
-        </div>
-
-        {/* Wallet connection section */}
-        <div style={styles.walletStatus}>
-          {connectedAccount ? (
-            <div>
-              <span>Connected: {`${connectedAccount.substring(0, 6)}...${connectedAccount.substring(connectedAccount.length - 4)}`}</span>
+    <div className="verify-container">
+      <div className="decoration decoration-1"></div>
+      <div className="decoration decoration-2"></div>
+      
+      <div className="verification-wrapper container">
+        <div className="verification-card card">
+          <div className="card-header">
+            <h1 className="card-title">Certificate Verification</h1>
+            <p className="card-subtitle">Validate the authenticity of your digital certificate</p>
+          </div>
+          
+          <div className="card-body">
+            {/* Wallet connection section */}
+            <div className="wallet-status">
+              {connectedAccount ? (
+                <div className="connected-wallet">
+                  <span>Connected: {`${connectedAccount.substring(0, 6)}...${connectedAccount.substring(connectedAccount.length - 4)}`}</span>
+                </div>
+              ) : (
+                <div className="connect-wallet">
+                  <button onClick={connectWallet} className="button btn-outline">
+                    Connect Wallet
+                  </button>
+                </div>
+              )}
             </div>
-          ) : (
-            <div>
-              <button onClick={connectWallet} style={styles.connectButton}>
-                Connect Wallet
+
+            <form onSubmit={handleVerify} className="verification-form">
+              <div className="form-group">
+                <label htmlFor="certHash" className="form-label">
+                  Certificate Key
+                </label>
+                <input
+                  className="form-input"
+                  type="text"
+                  id="certHash"
+                  value={certHash}
+                  onChange={(e) => setCertHash(e.target.value)}
+                  placeholder="Enter certificate key (certHash)"
+                  required
+                />
+              </div>
+
+              <button 
+                type="submit" 
+                className="button btn-primary verification-submit" 
+                disabled={isLoading}
+              >
+                {isLoading ? 'Processing...' : 'Verify Certificate'}
               </button>
-            </div>
-          )}
-        </div>
 
-        <form onSubmit={handleVerify} style={styles.form}>
-          <div style={styles.formGroup}>
-            <label style={styles.label} htmlFor="certHash">
-              Certificate Key
-            </label>
-            <input
-              style={styles.input}
-              type="text"
-              id="certHash"
-              value={certHash}
-              onChange={(e) => setCertHash(e.target.value)}
-              placeholder="Enter certificate key (certHash)"
-              required
-            />
-          </div>
+              {error && <div className="error-message">{error}</div>}
+              {success && <div className="success-message">{success}</div>}
+            </form>
 
-          <button type="submit" style={styles.button} disabled={isLoading}>
-            {isLoading ? 'Processing...' : 'Verify Certificate'}
-          </button>
-
-          {error && <div style={styles.errorMessage}>{error}</div>}
-          {success && <div style={styles.successMessage}>{success}</div>}
-        </form>
-
-        {isLoading && (
-          <div style={styles.loadingSpinner}>
-            <p>Loading certificate information...</p>
-          </div>
-        )}
-
-        {certificate && (
-          <>
-            {/* Tabs navigation for certificate display and management */}
-            {isIssuer && certificate.isValid && (
-              <div style={styles.tabs}>
-                <button 
-                  style={activeTab === 'certificate' ? {...styles.tab, ...styles.activeTab} : styles.tab}
-                  onClick={() => setActiveTab('certificate')}
-                >
-                  Certificate Details
-                </button>
-                <button 
-                  style={activeTab === 'manage' ? {...styles.tab, ...styles.activeTab} : styles.tab}
-                  onClick={() => setActiveTab('manage')}
-                >
-                  Manage Certificate
-                </button>
+            {isLoading && (
+              <div className="loading-spinner">
+                <p>Loading certificate information...</p>
               </div>
             )}
-            
-            {/* Certificate details view */}
-            {(activeTab === 'certificate' || !isIssuer) && (
-              <div style={styles.certificateDisplay}>
-                <h2 style={styles.certificateTitle}>
-                  Certificate 
-                  {certificate.isValid ? 
-                    <span style={styles.validBadge}>VALID</span> : 
-                    <span style={styles.revokedBadge}>REVOKED</span>
-                  }
-                </h2>
 
-                <div style={styles.certificateField}>
-                  <span style={styles.fieldLabel}>Institution:</span>
-                  <span style={styles.fieldValue}>{certificate.instituteName}</span>
-                </div>
-
-                <div style={styles.certificateField}>
-                  <span style={styles.fieldLabel}>Department:</span>
-                  <span style={styles.fieldValue}>{certificate.department}</span>
-                </div>
-
-                <div style={styles.certificateField}>
-                  <span style={styles.fieldLabel}>Recipient:</span>
-                  <span style={styles.fieldValue}>{certificate.firstName} {certificate.lastName}</span>
-                </div>
-
-                <div style={styles.certificateField}>
-                  <span style={styles.fieldLabel}>ID:</span>
-                  <span style={styles.fieldValue}>{certificate.certificantId}</span>
-                </div>
-
-                <div style={styles.certificateField}>
-                  <span style={styles.fieldLabel}>Email:</span>
-                  <span style={styles.fieldValue}>{certificate.email}</span>
-                </div>
-
-                <div style={styles.certificateField}>
-                  <span style={styles.fieldLabel}>Course:</span>
-                  <span style={styles.fieldValue}>{certificate.courseCompleted}</span>
-                </div>
-
-                <div style={styles.certificateField}>
-                  <span style={styles.fieldLabel}>Completion Date:</span>
-                  <span style={styles.fieldValue}>{certificate.completionDate}</span>
-                </div>
-
-                {certificate.notes && (
-                  <div style={styles.certificateField}>
-                    <span style={styles.fieldLabel}>Notes:</span>
-                    <span style={styles.fieldValue}>{certificate.notes}</span>
-                  </div>
-                )}
-
-                {/* View certificate on IPFS if hash is available */}
-                {certificate.ipfsHash && certificate.ipfsHash !== "N/A" && (
-                  <div style={styles.certificateField}>
-                    <span style={styles.fieldLabel}>View Certificate:</span>
-                    <a 
-                      href={`https://gateway.pinata.cloud/ipfs/${certificate.ipfsHash}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={styles.ipfsLink}
-                    >
-                      Download
-                    </a>
-                  </div>
-                )}
-                
-                {/* Revoke button - always visible if issuer and certificate is valid */}
+            {certificate && (
+              <>
+                {/* Tabs navigation for certificate display and management */}
                 {isIssuer && certificate.isValid && (
-                  <button 
-                    onClick={handleRevokeCertificate} 
-                    style={styles.revokeButton}
-                    disabled={isProcessing}
-                  >
-                    {isProcessing ? 'Processing...' : 'Revoke Certificate'}
-                  </button>
-                )}
-              </div>
-            )}
-            
-            {/* Certificate management view */}
-            {activeTab === 'manage' && isIssuer && certificate.isValid && (
-              <div style={styles.managementSection}>
-                <h3 style={styles.sectionTitle}>Certificate Management</h3>
-                
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Upload New Certificate</label>
-                  <input
-                    type="file"
-                    id="certificateFile"
-                    onChange={handleFileChange}
-                    style={styles.fileInput}
-                  />
-                  <label htmlFor="certificateFile" style={styles.fileInputLabel}>
-                    {selectedFile ? selectedFile.name : "Click to select a file"}
-                  </label>
-                  
-                  {selectedFile && (
-                    <div style={styles.selectedFile}>
-                      <span>{selectedFile.name}</span>
-                      <button 
-                        type="button" 
-                        onClick={clearSelectedFile} 
-                        style={styles.clearFileBtn}
-                      >
-                        ×
-                      </button>
-                    </div>
-                  )}
-                  
-                  {isUploading && (
-                    <div style={styles.progressBar}>
-                      <div 
-                        style={{
-                          ...styles.progressFill,
-                          width: `${uploadProgress}%`
-                        }}
-                      />
-                    </div>
-                  )}
-                  
-                  <button 
-                    onClick={() => handleCertificateManagement('upload')} 
-                    style={styles.actionButton}
-                    disabled={!selectedFile || isProcessing}
-                  >
-                    {isProcessing ? 'Processing...' : 'Upload & Update Certificate'}
-                  </button>
-                </div>
-                
-                <div style={styles.divider}></div>
-                
-                {/* <div style={styles.formGroup}>
-                  <label style={styles.label}>Manual IPFS Update</label>
-                  <input
-                    style={styles.input}
-                    type="text"
-                    value={newIpfsHash}
-                    onChange={(e) => setNewIpfsHash(e.target.value)}
-                    placeholder="Enter IPFS hash"
-                  />
-                  
-                  {ipfsHash && (
+                  <div className="certificate-tabs">
                     <button 
-                      onClick={() => setNewIpfsHash(ipfsHash)} 
-                      style={{...styles.actionButton, marginTop: '8px'}}
-                      disabled={isProcessing}
+                      className={`tab ${activeTab === 'certificate' ? 'active' : ''}`}
+                      onClick={() => setActiveTab('certificate')}
                     >
-                      Use Uploaded Hash
+                      Certificate Details
                     </button>
-                  )}
-                  
-                  <button 
-                    onClick={() => handleCertificateManagement('update')} 
-                    style={styles.actionButton}
-                    disabled={!newIpfsHash || isProcessing}
-                  >
-                    {isProcessing ? 'Processing...' : 'Update Certificate Reference'}
-                  </button> */}
-                {/* </div> */}
-                
-                {/* {ipfsHash && (
-                  <div style={styles.ipfsResult}>
-                    <p>Latest Upload: 
-                      <a 
-                        href={`https://gateway.pinata.cloud/ipfs/${ipfsHash}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={styles.ipfsLink}
-                      >
-                        {ipfsHash}
-                      </a>
-                      <button 
-                        onClick={() => copyToClipboard(ipfsHash)} 
-                        style={styles.copyButton}
-                      >
-                        Copy
-                      </button>
-                    </p>
+                    <button 
+                      className={`tab ${activeTab === 'manage' ? 'active' : ''}`}
+                      onClick={() => setActiveTab('manage')}
+                    >
+                      Manage Certificate
+                    </button>
                   </div>
-                )} */}
-              </div>
+                )}
+                
+                {/* Certificate details view */}
+                {(activeTab === 'certificate' || !isIssuer) && (
+                  <div className="certificate-display">
+                    <h2 className="certificate-title">
+                      Certificate 
+                      {certificate.isValid ? 
+                        <span className="valid-badge">VALID</span> : 
+                        <span className="revoked-badge">REVOKED</span>
+                      }
+                    </h2>
+
+                    <div className="certificate-details">
+                      <div className="certificate-field">
+                        <span className="field-label">Institution:</span>
+                        <span className="field-value">{certificate.instituteName}</span>
+                      </div>
+
+                      <div className="certificate-field">
+                        <span className="field-label">Department:</span>
+                        <span className="field-value">{certificate.department}</span>
+                      </div>
+
+                      <div className="certificate-field">
+                        <span className="field-label">Recipient:</span>
+                        <span className="field-value">{certificate.firstName} {certificate.lastName}</span>
+                      </div>
+
+                      <div className="certificate-field">
+                        <span className="field-label">ID:</span>
+                        <span className="field-value">{certificate.certificantId}</span>
+                      </div>
+
+                      <div className="certificate-field">
+                        <span className="field-label">Email:</span>
+                        <span className="field-value">{certificate.email}</span>
+                      </div>
+
+                      <div className="certificate-field">
+                        <span className="field-label">Course:</span>
+                        <span className="field-value">{certificate.courseCompleted}</span>
+                      </div>
+
+                      <div className="certificate-field">
+                        <span className="field-label">Completion Date:</span>
+                        <span className="field-value">{certificate.completionDate}</span>
+                      </div>
+
+                      {certificate.notes && (
+                        <div className="certificate-field">
+                          <span className="field-label">Notes:</span>
+                          <span className="field-value">{certificate.notes}</span>
+                        </div>
+                      )}
+
+                      {certificate.ipfsHash && certificate.ipfsHash !== "N/A" && (
+                        <div className="certificate-field">
+                          <span className="field-label">View Certificate:</span>
+                          <a 
+                            href={`https://gateway.pinata.cloud/ipfs/${certificate.ipfsHash}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="ipfs-link"
+                          >
+                            Download
+                          </a>
+                        </div>
+                      )}
+                      
+                      {isIssuer && certificate.isValid && (
+                        <button 
+                          onClick={handleRevokeCertificate} 
+                          className="button btn-outline revoke-button"
+                          disabled={isProcessing}
+                        >
+                          {isProcessing ? 'Processing...' : 'Revoke Certificate'}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
+                
+                {/* Certificate management view */}
+                {activeTab === 'manage' && isIssuer && certificate.isValid && (
+                  <div className="certificate-management">
+                    <h3 className="section-title">Certificate Management</h3>
+                    
+                    <div className="form-group">
+                      <label className="form-label">Upload New Certificate</label>
+                      <input
+                        type="file"
+                        id="certificateFile"
+                        onChange={handleFileChange}
+                        className="file-input"
+                      />
+                      <label htmlFor="certificateFile" className="file-input-label">
+                        {selectedFile ? selectedFile.name : "Click to select a file"}
+                      </label>
+                      
+                      {selectedFile && (
+                        <div className="selected-file">
+                          <span>{selectedFile.name}</span>
+                          <button 
+                            type="button" 
+                            onClick={clearSelectedFile} 
+                            className="clear-file-btn"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      )}
+                      
+                      {isUploading && (
+                        <div className="progress-bar">
+                          <div 
+                            className="progress-fill"
+                            style={{
+                              width: `${uploadProgress}%`
+                            }}
+                          />
+                        </div>
+                      )}
+                      
+                      <button 
+                        onClick={() => handleCertificateManagement('upload')} 
+                        className="button btn-primary action-btn"
+                        disabled={!selectedFile || isProcessing}
+                      >
+                        {isProcessing ? 'Processing...' : 'Upload & Update Certificate'}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
-          </>
-        )}
+          </div>
+        </div>
       </div>
     </div>
   );
-};
+}
 
 export default VerifyCertificate;

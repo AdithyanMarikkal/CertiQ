@@ -136,7 +136,7 @@ const Navbar = () => {
         </a>
         <div className="nav-menu">
           <ul className="nav-links">
-            <li><a href="#" className="nav-link">Home</a></li>
+            <li><a href="/" className="nav-link">Home</a></li>
             <li><a href="#" className="nav-link">Features</a></li>
             <li><a href="#" className="nav-link">Use Cases</a></li>
             <li><a href="#" className="nav-link">Pricing</a></li>
