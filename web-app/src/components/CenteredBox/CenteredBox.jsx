@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ethers } from "ethers";
-import "./CenteredBox.css";
+import './CenteredBox.css';
 
 const contractABI = [
   {
@@ -19,6 +19,7 @@ export const CenteredBox = () => {
   const [account, setAccount] = useState(null);
   const [isRegistered, setIsRegistered] = useState(false);
   const navigate = useNavigate();
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
     const checkWallet = async () => {
@@ -40,7 +41,7 @@ export const CenteredBox = () => {
     if (account) {
       checkRegistration(account);
     }
-  }, [account]); // Run whenever `account` updates
+  }, [account]);
 
   const checkRegistration = async (walletAddress) => {
     if (!contractAddress) return;
@@ -59,7 +60,6 @@ export const CenteredBox = () => {
       alert("Please connect your wallet to issue a certificate.");
       return;
     } 
-    // navigate(isRegistered ? "/issue" : "/");
     if (isRegistered) {
       navigate("/issue");
     } else {
@@ -68,18 +68,84 @@ export const CenteredBox = () => {
   };
 
   return (
-    <div className="container">
-      <div className="box">
-        <p>A Decentralized Certificate Issuance and Verification System.</p>
-        <div className="buttonContainer">
-          <button className="actionButton" onClick={handleIssueClick}>
-            Issue
-          </button>
-          <button className="actionButton" onClick={() => navigate("/verify")}>
-            Verify
-          </button>
+    <>
+      <div className="decoration decoration-1"></div>
+      <div className="decoration decoration-2"></div>
+      <main>
+        <div className="container">
+          <div className="hero">
+            <div className="hero-content">
+              <div className="pre-title">Blockchain-Powered</div>
+              <h1 className="title">Secure & Verifiable <span>Digital Certificates</span></h1>
+              <p className="description">
+                Issue tamper-proof certificates and credentials with CertiQ's decentralized platform. 
+                Simplify verification and empower your organization with cutting-edge blockchain technology.
+              </p>
+              
+              <div className="hero-buttons">
+                <button 
+                  className="button btn-primary"
+                  onClick={handleIssueClick}
+                >
+                  Issue Certificate
+                </button>
+                <button 
+                  className="button btn-outline"
+                  onClick={() => navigate("/verify")}
+                >
+                  Verify Certificate
+                </button>
+              </div>
+              
+              <div className="features-grid">
+                <div className="feature-item">
+                  <div className="feature-icon">✓</div>
+                  <div className="feature-text">Tamper-proof Technology</div>
+                </div>
+                <div className="feature-item">
+                  <div className="feature-icon">✓</div>
+                  <div className="feature-text">Instant Verification</div>
+                </div>
+                <div className="feature-item">
+                  <div className="feature-icon">✓</div>
+                  <div className="feature-text">Global Accessibility</div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="hero-card">
+              <div className="card">
+                <div className="card-header">
+                  <div className="card-title">Certificate Management</div>
+                </div>
+                <div className="card-body">
+                  <div className="certificate-actions">
+                    <div 
+                      className="action-button" 
+                      onClick={handleIssueClick}
+                    >
+                      <div className="action-icon action-issue">⬆️</div>
+                      <div className="action-title">Issue</div>
+                      <div className="action-desc">Create and distribute blockchain-verified certificates</div>
+                    </div>
+                    <div 
+                      className="action-button"
+                      onClick={() => navigate("/verify")}
+                    >
+                      <div className="action-icon action-verify">✓</div>
+                      <div className="action-title">Verify</div>
+                      <div className="action-desc">Instantly validate any certificate's authenticity</div>
+                    </div>
+                  </div>
+                </div>
+                <div className="card-footer">
+                  Need help? <a href="#">View Documentation</a>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+      </main>
+    </>
   );
 };

@@ -504,7 +504,7 @@ const VerifyCertificate = () => {
       const tx = await contract.revokeCertificate(certHash);
       await tx.wait();
       
-      setSuccess(Certificate has been successfully revoked.);
+      setSuccess(`Certificate has been successfully revoked.`);
       
       // Refresh certificate data to show the updated status
       const updatedCertificateData = await contract.verifyCertificate(certHash);
@@ -569,7 +569,7 @@ const VerifyCertificate = () => {
         }, 500);
         
         // Upload to IPFS
-        const response = await axios.post(${SERVER_URL}/upload, formData, {
+        const response = await axios.post(`${SERVER_URL}/upload`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
         
@@ -620,7 +620,7 @@ const VerifyCertificate = () => {
       }
     } catch (error) {
       console.error('Error managing certificate:', error);
-      setError(Operation failed: ${error.message});
+      setError(`Operation failed: ${error.message}`);
       setUploadProgress(0);
     } finally {
       setIsProcessing(false);
@@ -652,7 +652,7 @@ const VerifyCertificate = () => {
         <div style={styles.walletStatus}>
           {connectedAccount ? (
             <div>
-              <span>Connected: {${connectedAccount.substring(0, 6)}...${connectedAccount.substring(connectedAccount.length - 4)}}</span>
+              <span>Connected: {`${connectedAccount.substring(0, 6)}...${connectedAccount.substring(connectedAccount.length - 4)}`}</span>
             </div>
           ) : (
             <div>
@@ -771,7 +771,7 @@ const VerifyCertificate = () => {
                   <div style={styles.certificateField}>
                     <span style={styles.fieldLabel}>View Certificate:</span>
                     <a 
-                      href={https://gateway.pinata.cloud/ipfs/${certificate.ipfsHash}}
+                      href={`https://gateway.pinata.cloud/ipfs/${certificate.ipfsHash}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       style={styles.ipfsLink}
@@ -829,7 +829,7 @@ const VerifyCertificate = () => {
                       <div 
                         style={{
                           ...styles.progressFill,
-                          width: ${uploadProgress}%
+                          width: `${uploadProgress}%`
                         }}
                       />
                     </div>
@@ -879,7 +879,7 @@ const VerifyCertificate = () => {
                   <div style={styles.ipfsResult}>
                     <p>Latest Upload: 
                       <a 
-                        href={https://gateway.pinata.cloud/ipfs/${ipfsHash}}
+                        href={`https://gateway.pinata.cloud/ipfs/${ipfsHash}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         style={styles.ipfsLink}
