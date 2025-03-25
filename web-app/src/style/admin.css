@@ -1,0 +1,124 @@
+/* Admin Panel Styles */
+
+.admin-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .admin-container h1 {
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #e9ecef;
+  }
+  
+  .admin-container h2 {
+    color: #3498db;
+    margin: 1.5rem 0;
+  }
+  
+  .refresh-button {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    margin-bottom: 1.5rem;
+    transition: background-color 0.2s;
+  }
+  
+  .refresh-button:hover {
+    background-color: #2980b9;
+  }
+  
+  .refresh-button:disabled {
+    background-color: #95a5a6;
+    cursor: not-allowed;
+  }
+  
+  .pending-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .pending-item {
+    background-color: white;
+    border-radius: 6px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  @media (min-width: 768px) {
+    .pending-item {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+    }
+  }
+  
+  .institute-details {
+    flex: 1;
+  }
+  
+  .institute-details p {
+    margin: 0.5rem 0;
+    color: #2c3e50;
+  }
+  
+  .action-buttons {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+  
+  @media (min-width: 768px) {
+    .action-buttons {
+      margin-top: 0;
+    }
+  }
+  
+  .approve-button, .reject-button {
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.2s, transform 0.1s;
+  }
+  
+  .approve-button {
+    background-color: #2ecc71;
+    color: white;
+  }
+  
+  .approve-button:hover {
+    background-color: #27ae60;
+    transform: translateY(-1px);
+  }
+  
+  .reject-button {
+    background-color: #e74c3c;
+    color: white;
+  }
+  
+  .reject-button:hover {
+    background-color: #c0392b;
+    transform: translateY(-1px);
+  }
+  
+  .approve-button:disabled, .reject-button:disabled {
+    background-color: #95a5a6;
+    cursor: not-allowed;
+    transform: none;
+  }
