@@ -100,7 +100,38 @@ Do *not* share your .env files or push them to version control. Add .env to .git
    npm run dev
    ```
 
-# Screenshots
+# Images of working
+![Description](Readme_images/issue.png)
+![Description](Readme_images/issueroptions.png)
+![Description](Readme_images/qr.png)
+![Description](Readme_images/verification.png)
+
+# Technical Stack
+Frontend:
+• Html
+• Css
+• Java script
+• React
+
+IDE:
+• VS code
+• Remix ide
+
+Backend:
+• Solidity
+• Node.js
+• Express.js
+• Hardhat
+
+Version Control:
+• Github
+
+# Contributors
+- ADITHYAN MARIKKAL  
+- KEERTHANA S 
+- NIYALURAHMAN K K 
+- AMEYA SHYJU M 
+
 
 
 
