@@ -2,16 +2,8 @@ import React, { useState, useEffect, useRef} from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ethers } from "ethers";
 import './CenteredBox.css';
+import { getContractInstance } from "../../utils/getABI.js";
 
-const contractABI = [
-  {
-    "inputs": [{ "internalType": "address", "name": "_institute", "type": "address" }],
-    "name": "isRegistered",
-    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
-    "stateMutability": "view",
-    "type": "function"
-  }
-];
 
 const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
 
@@ -74,8 +66,8 @@ export const CenteredBox = () => {
   const checkRegistration = async (walletAddress) => {
     if (!contractAddress) return;
     try {
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const contract = new ethers.Contract(contractAddress, contractABI, provider);
+      const contract = await getContractInstance(contractAddress);
+      if (!contract) return;
       const registered = await contract.isRegistered(walletAddress);
       setIsRegistered(registered);
     } catch (error) {

@@ -2,34 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ethers } from "ethers";
 import "../style/register.css"; 
+import { getContractInstance } from "../utils/getABI.js";
 
-const contractABI = [
-  {
-    inputs: [],
-    name: "owner",
-    outputs: [{ internalType: "address", name: "", type: "address" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [{ internalType: "address", name: "_institute", type: "address" }],
-    name: "isRegistered",
-    outputs: [{ internalType: "bool", name: "", type: "bool" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      { internalType: "string", name: "_name", type: "string" },
-      { internalType: "string", name: "_acronym", type: "string" },
-      { internalType: "string", name: "_website", type: "string" },
-    ],
-    name: "requestRegistration",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-];
 
 const Register = () => {
   const [loading, setLoading] = useState(false);
@@ -74,8 +48,9 @@ const Register = () => {
     if (!walletAddress || !contractAddress) return;
 
     try {
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const contract = new ethers.Contract(contractAddress, contractABI, provider);
+      const contract = await getContractInstance(contractAddress);
+      if (!contract) return;
+      
       const registered = await contract.isRegistered(walletAddress);
 
       setIsRegistered(registered);
@@ -104,20 +79,8 @@ const Register = () => {
 
     try {
       setLoading(true);
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
-      const contract = new ethers.Contract(contractAddress, contractABI, signer);
-
-      //For debugging 
-      console.log("Requesting registration for:");
-      console.log("Institution Name:", institutionName);
-      console.log("Acronym:", acronym);
-      console.log("Website:", website);
-      console.log("Institute Address:", account);
-
-
-      //lines above for debugging
-
+      const contract = await getContractInstance(contractAddress);
+      if (!contract) return;
 
 
       const tx = await contract.requestRegistration(institutionName, acronym, website);
