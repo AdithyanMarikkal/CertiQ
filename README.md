@@ -1,4 +1,16 @@
 # CertiQ
+DEMO LINK
+https://certiq-demos-projects-48a9dfad.vercel.app/
+## Basic Details
+### Team Name:CertiQ
+### Team Guide: Maanasa N A S
+### Team Members
+- ADITHYAN MARIKKAL NSS22CS009 
+- KEERTHANA S NSS22CS037 
+- NIYALURAHMAN K K NSS22CS049 
+- AMEYA SHYJU M LNSS22CS069 
+
+# Description
 *Decentralized certificate issuance and verification system using Block chain Technology*
 
 
