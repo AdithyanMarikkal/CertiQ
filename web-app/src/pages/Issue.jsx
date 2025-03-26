@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { ethers } from 'ethers';
-import { QRCodeCanvas } from 'qrcode.react';import contractABI from '../../../server/artifacts/contracts/InstituteRegistration.sol/InstituteRegistration.json';
+import { QRCodeCanvas } from 'qrcode.react';
 import { useRef } from 'react';
 import "../style/issue.css"
+import { getContractInstance } from "../utils/getABI.js";
+
 const verifyBaseUrl = import.meta.env.VITE_VERIFY_URL || 'http://localhost:5173/verify';
 const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
 const Issue = () => {
@@ -46,9 +48,8 @@ const Issue = () => {
     }
 
     try {
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
-      const contract = new ethers.Contract(contractAddress, contractABI.abi, signer);
+      const contract = await getContractInstance(contractAddress);
+      if (!contract) return;
 
       const tx = await contract.issueCertificate(
         formData.instituteName,

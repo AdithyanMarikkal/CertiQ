@@ -1,0 +1,9 @@
+{
+    "rewrites": [
+      {
+        "source": "/verify",
+        "destination": "/index.html"
+      }
+    ]
+  }
+  

@@ -2,23 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ethers } from "ethers";
 import './Navbar.css';
+import { getContractInstance } from "../../utils/getABI.js";
 
-const contractABI = [
-  {
-    inputs: [],
-    name: "owner",
-    outputs: [{ internalType: "address", name: "", type: "address" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [{ internalType: "address", name: "_institute", type: "address" }],
-    name: "isRegistered",
-    outputs: [{ internalType: "bool", name: "", type: "bool" }],
-    stateMutability: "view",
-    type: "function",
-  }
-];
 
 const Navbar = ({ featuresRef, aboutRef }) => {
   const [account, setAccount] = useState(null);
@@ -50,8 +35,7 @@ const Navbar = ({ featuresRef, aboutRef }) => {
     const initContract = async () => {
       if (window.ethereum && contractAddress) {
         try {
-          const provider = new ethers.BrowserProvider(window.ethereum);
-          const contractInstance = new ethers.Contract(contractAddress, contractABI, provider);
+          const contractInstance = await getContractInstance(contractAddress);
           setContract(contractInstance);
         } catch (error) {
           console.error("Error initializing contract:", error);

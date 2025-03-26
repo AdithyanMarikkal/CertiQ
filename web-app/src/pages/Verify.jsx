@@ -4,10 +4,25 @@ import InstituteRegistration from '../../../server/artifacts/contracts/Institute
 import { useSearchParams } from "react-router-dom";
 import axios from 'axios'; 
 import '../style/verify.css';
+const API_URL =import.meta.env.VITE_GETABI || "http://localhost:5000/api/abi";
 
-const contractABI = InstituteRegistration.abi;
+
+async function fetchABI() {
+  try {
+      const response = await fetch(API_URL);
+      return await response.json();
+  } catch (error) {
+      console.error("Error fetching ABI:", error);
+      return null;
+  }
+}
+let contractABI = null;
+async function init() {
+  contractABI = await fetchABI();
+}
+init();
 const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
-const SERVER_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:5000';
+const SERVER_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
 const VerifyCertificate = () => {
   const [searchParams] = useSearchParams();

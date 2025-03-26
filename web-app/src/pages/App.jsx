@@ -7,16 +7,7 @@ import Issue from './Issue';
 import Register from './Register';
 import Verify from './Verify';
 import Admin from './Admin';
-
-const contractABI = [
-  {
-    inputs: [],
-    name: "owner",
-    outputs: [{ internalType: "address", name: "", type: "address" }],
-    stateMutability: "view",
-    type: "function",
-  },
-];
+import { getContractInstance } from "../utils/getABI.js";
 
 function App() {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -57,9 +48,10 @@ function CheckAdmin({ setIsAdmin, contractAddress }) {
       try {
         const provider = new ethers.BrowserProvider(window.ethereum);
         const signer = await provider.getSigner();
+        const contract = await getContractInstance(contractAddress);
+        if (!contract) return;
         const userAddress = await signer.getAddress();
 
-        const contract = new ethers.Contract(contractAddress, contractABI, provider);
         const ownerAddress = await contract.owner();
 
         if (userAddress.toLowerCase() === ownerAddress.toLowerCase()) {

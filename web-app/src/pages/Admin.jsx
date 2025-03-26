@@ -1,73 +1,23 @@
 import React, { useState, useEffect } from "react";
 import { ethers } from "ethers";
 import "../style/admin.css";
+import { getContractInstance } from "../utils/getABI.js";
+const API_URL =import.meta.env.VITE_GETABI || "http://localhost:5000/api/abi";
 
-
-const contractABI = [
-  {
-    inputs: [],
-    name: "owner",
-    outputs: [{ internalType: "address", name: "", type: "address" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [{ internalType: "address", name: "_institute", type: "address" }],
-    name: "getPendingInstitute",
-    outputs: [
-      { internalType: "string", name: "", type: "string" },
-      { internalType: "string", name: "", type: "string" },
-      { internalType: "string", name: "", type: "string" },
-      { internalType: "bool", name: "", type: "bool" }
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [{ internalType: "address", name: "_institute", type: "address" }],
-    name: "approveRegistration",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-
-  {
-    inputs: [{ internalType: "address", name: "_institute", type: "address" }],
-    name: "rejectRegistration",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-
-  {
-    anonymous: false,
-    inputs: [
-      { indexed: true, internalType: "address", name: "instituteAddress", type: "address" },
-      { indexed: false, internalType: "string", name: "name", type: "string" }
-    ],
-    name: "InstituteRequested",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      { indexed: true, internalType: "address", name: "instituteAddress", type: "address" },
-      { indexed: false, internalType: "string", name: "name", type: "string" },
-      { indexed: false, internalType: "uint256", name: "registrationTime", type: "uint256" }
-    ],
-    name: "InstituteRegistered",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      { indexed: true, internalType: "address", name: "instituteAddress", type: "address" },
-      { indexed: false, internalType: "string", name: "name", type: "string" }
-    ],
-    name: "InstituteRejected",
-    type: "event",
+async function fetchABI() {
+  try {
+      const response = await fetch(API_URL);
+      return await response.json();
+  } catch (error) {
+      console.error("Error fetching ABI:", error);
+      return null;
   }
-];
+}
+let contractABI = null;
+async function init() {
+  contractABI = await fetchABI();
+}
+init();
 
 const Admin = () => {
   const [pendingInstitutes, setPendingInstitutes] = useState([]);
@@ -98,8 +48,8 @@ const Admin = () => {
     if (!walletAddress || !contractAddress) return;
 
     try {
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const contract = new ethers.Contract(contractAddress, contractABI, provider);
+      const contract = await getContractInstance(contractAddress);
+      if (!contract) return;
       const ownerAddress = await contract.owner();
 
       setIsAdmin(ownerAddress.toLowerCase() === walletAddress.toLowerCase());
@@ -116,8 +66,8 @@ const Admin = () => {
     setLoading(true);
 
     try {
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const contract = new ethers.Contract(contractAddress, contractABI, provider);
+      const contract = await getContractInstance(contractAddress);
+      if (!contract) return;
       
       // Get all InstituteRequested events
       const requestFilter = contract.filters.InstituteRequested();
@@ -163,9 +113,8 @@ const Admin = () => {
     setLoading(true);
 
     try {
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
-      const contract = new ethers.Contract(contractAddress, contractABI, signer);
+      const contract = await getContractInstance(contractAddress);
+      if (!contract) return;
 
       const tx = await contract.approveRegistration(instituteAddress);
       await tx.wait();
@@ -185,9 +134,8 @@ const Admin = () => {
     setActionInProgress(true);
 
     try {
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
-      const contract = new ethers.Contract(contractAddress, contractABI, signer);
+      const contract = await getContractInstance(contractAddress);
+      if (!contract) return;
 
       const tx = await contract.rejectRegistration(instituteAddress);
       await tx.wait();
@@ -207,8 +155,8 @@ const Admin = () => {
     if (!contractAddress || !window.ethereum) return;
 
     const setupEventListeners = async () => {
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const contract = new ethers.Contract(contractAddress, contractABI, provider);
+      const contract = await getContractInstance(contractAddress);
+      if (!contract) return;
       
       // Listen for new registration requests
       contract.on("InstituteRequested", (address, name) => {
