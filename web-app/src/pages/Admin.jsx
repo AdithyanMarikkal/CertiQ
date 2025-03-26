@@ -13,7 +13,11 @@ async function fetchABI() {
       return null;
   }
 }
-const contractABI = await fetchABI();
+let contractABI = null;
+async function init() {
+  contractABI = await fetchABI();
+}
+init();
 
 const Admin = () => {
   const [pendingInstitutes, setPendingInstitutes] = useState([]);

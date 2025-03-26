@@ -16,7 +16,11 @@ async function fetchABI() {
       return null;
   }
 }
-const contractABI = await fetchABI();
+let contractABI = null;
+async function init() {
+  contractABI = await fetchABI();
+}
+init();
 const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
 const SERVER_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
